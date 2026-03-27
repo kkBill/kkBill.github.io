@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>随笔 on kkBill&#39;s Blog</title>
+    <link>https://kkbill.github.io/tags/%E9%9A%8F%E7%AC%94/</link>
+    <description>Recent content in 随笔 on kkBill&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 27 Mar 2026 15:33:20 +0800</lastBuildDate><atom:link href="https://kkbill.github.io/tags/%E9%9A%8F%E7%AC%94/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>New Start</title>
+      <link>https://kkbill.github.io/post/new-start/</link>
+      <pubDate>Fri, 27 Mar 2026 15:33:20 +0800</pubDate>
+      
+      <guid>https://kkbill.github.io/post/new-start/</guid>
+      <description>好久没写博客了，这是新的开始！</description>
+    </item>
+    
+  </channel>
+</rss>

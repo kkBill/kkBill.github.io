@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title> - kkBill&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="kkBill" /><meta name="description" content="内存分配与垃圾回收 1. 操作系统内存模型简述 1.1 堆（heap） 程序运行的时候，操作系统会给它分配一段内存，用来储存程序和运行产生的数据。这段内存有" /><meta name="keywords" content="技术, 读书, 生活杂感" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.78.2 with theme even" />
+
+
+<link rel="canonical" href="https://kkbill.github.io/post/%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E5%99%A8/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.c7bc1becf36bcf6a9ebd25d2947e43a2eb745ddb0c9a32b43126fd7fa460c351.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="" />
+<meta property="og:description" content="内存分配与垃圾回收 1. 操作系统内存模型简述 1.1 堆（heap） 程序运行的时候，操作系统会给它分配一段内存，用来储存程序和运行产生的数据。这段内存有" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://kkbill.github.io/post/%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E5%99%A8/" />
+
+<meta itemprop="name" content="">
+<meta itemprop="description" content="内存分配与垃圾回收 1. 操作系统内存模型简述 1.1 堆（heap） 程序运行的时候，操作系统会给它分配一段内存，用来储存程序和运行产生的数据。这段内存有">
+
+<meta itemprop="wordCount" content="2800">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content=""/>
+<meta name="twitter:description" content="内存分配与垃圾回收 1. 操作系统内存模型简述 1.1 堆（heap） 程序运行的时候，操作系统会给它分配一段内存，用来储存程序和运行产生的数据。这段内存有"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">kkBill&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">kkBill&#39;s Blog</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">分类</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title"></h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 0001-01-01 </span>
+        
+          <span class="more-meta"> 约 2800 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#内存分配与垃圾回收">内存分配与垃圾回收</a>
+      <ul>
+        <li><a href="#1-操作系统内存模型简述">1. 操作系统内存模型简述</a>
+          <ul>
+            <li><a href="#11-堆heap">1.1 堆（heap）</a></li>
+            <li><a href="#12-栈stack">1.2 栈（stack）</a></li>
+            <li><a href="#13-内存分配器">1.3 内存分配器</a></li>
+          </ul>
+        </li>
+        <li><a href="#2-动态内存分配器">2. 动态内存分配器</a></li>
+        <li><a href="#3-垃圾收集">3. 垃圾收集</a>
+          <ul>
+            <li><a href="#31-基础知识">3.1 基础知识</a></li>
+            <li><a href="#32-marksweep-垃圾收集器">3.2 Mark&amp;Sweep 垃圾收集器</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <h1 id="内存分配与垃圾回收">内存分配与垃圾回收</h1>
+<h2 id="1-操作系统内存模型简述">1. 操作系统内存模型简述</h2>
+<h3 id="11-堆heap">1.1 堆（heap）</h3>
+<p>程序运行的时候，操作系统会给它分配一段内存，用来储存程序和运行产生的数据。这段内存有起始地址和结束地址，比如从<code>0x1000</code>到<code>0x8000</code>，起始地址是较小的那个地址，结束地址是较大的那个地址。</p>
+<p>程序运行过程中，对于动态的内存占用请求（比如新建对象，或者使用<code>malloc</code>命令），系统就会从可用的空闲内存中划出一部分给用户，具体规则是从起始地址开始划分（实际上，起始地址会有一段静态数据，这里忽略）。举例来说，用户要求得到10个字节内存，那么从起始地址<code>0x1000</code>开始给他分配，一直分配到地址<code>0x100A</code>，如果再要求得到22个字节，那么就分配到<code>0x1020</code>。</p>
+<p><img src="http://www.ruanyifeng.com/blogimg/asset/2018/bg2018012209.png" alt="img"></p>
+<p>这种<strong>因为用户主动请求而划分出来的内存区域，叫做 Heap（堆）。它由起始地址开始，从低位（地址）向高位（地址）增长。Heap 的一个重要特点就是不会自动消失，必须手动释放，或者由垃圾回收机制来回收</strong>。</p>
+<h3 id="12-栈stack">1.2 栈（stack）</h3>
+<p>除了 Heap 以外，其他的内存占用叫做 Stack（栈）。简单说，Stack 是由于函数运行而<strong>临时占用</strong>的内存区域。</p>
+<p><img src="http://www.ruanyifeng.com/blogimg/asset/2018/bg2018012210.png" alt="img"></p>
+<p>请看下面的例子。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+   <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+   <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>上面代码中，系统开始执行<code>main</code>函数时，会为它在内存里面建立一个帧（frame），所有<code>main</code>的内部变量（比如<code>a</code>和<code>b</code>）都保存在这个帧里面。<code>main</code>函数执行结束后，该帧就会被回收，释放所有的内部变量，不再占用空间。</p>
+<p><img src="http://www.ruanyifeng.com/blogimg/asset/2018/bg2018012211.png" alt="img"></p>
+<p>如果函数内部调用了其他函数，会发生什么情况？</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+   <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+   <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+   <span class="k">return</span> <span class="n">add_a_and_b</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>上面代码中，<code>main</code>函数内部调用了<code>add_a_and_b</code>函数。执行到这一行的时候，系统也会为<code>add_a_and_b</code>新建一个帧，用来储存它的内部变量。也就是说，此时同时存在两个帧：<code>main</code>和<code>add_a_and_b</code>。一般来说，调用栈有多少层，就有多少帧。</p>
+<p><img src="http://www.ruanyifeng.com/blogimg/asset/2018/bg2018012212.png" alt="img"></p>
+<p>等到<code>add_a_and_b</code>运行结束，它的帧就会被回收，系统会回到函数<code>main</code>刚才中断执行的地方，继续往下执行。通过这种机制，就实现了函数的层层调用，并且每一层都能使用自己的本地变量。</p>
+<p><strong>Stack 是由内存区域的结束地址开始，从高位（地址）向低位（地址）分配</strong>（所以栈顶是在下面一侧）。比如，内存区域的结束地址是<code>0x8000</code>，第一帧假定是16字节，那么下一次分配的地址就会从<code>0x7FF0</code>开始；第二帧假定需要64字节，那么地址就会移动到<code>0x7FB0</code>。</p>
+<p><img src="http://www.ruanyifeng.com/blogimg/asset/2018/bg2018012215.png" alt="img"></p>
+<h3 id="13-内存分配器">1.3 内存分配器</h3>
+<p>前面说了，由用户自行维护（包括申请和释放）的内存区域被称为堆。从分配器的角度来看，该区域将内存分为一组大小不同的块（block），每个块是一篇连续的虚拟内存（chunk），这些块要么是已分配的，要么是空闲的。已分配的内存用于程序运行，空闲的内存就是待分配的。</p>
+<p>内存分配器有两种风格，这两种风格都要求应用显式地分配内存块，区别在于由哪个实体来负责释放已分配的块。</p>
+<ul>
+<li>显示分配器（explicit allocator）：要求开发者显式地释放已分配的块。比如C程序通过调用malloc函数类分配内存，并通过调用free函数来释放内存。</li>
+<li>隐式分配器（implicit allocator）：隐式分配器也叫垃圾收集器（garbage collector），自动释放未使用的已分配的内存块（这一过程就称之为<strong>垃圾回收</strong>）。通过垃圾回收机制，程序员不再需要手动管理内存。</li>
+</ul>
+<h2 id="2-动态内存分配器">2. 动态内存分配器</h2>
+<p>本节讨论的内容是显示分配器的设计与实现。</p>
+<h2 id="3-垃圾收集">3. 垃圾收集</h2>
+<p>在一个支持垃圾回收的系统中，应用需显式分配堆内存，但是无需显式地释放它们，由垃圾收集器定期识别垃圾块，并相应地调用free，把这些块放回空闲链表中。垃圾回收的策略和算法有很多，本节的讨论仅局限于Mark&amp;Sweep（标记清除）算法，该算法可以在已存在的 malloc/free 的基础之上，为C/C++程序提供垃圾收集。</p>
+<h3 id="31-基础知识">3.1 基础知识</h3>
+<p>垃圾收集器将内存视为一张有向<strong>可达图</strong>（reachability graph），如下图所示。该图的节点被分成一组<strong>根节点</strong>（root node）和一组<strong>堆节点</strong>（heap node）。每个堆节点对应于堆中的一个已分配块。有向边 p→q 意味着块 p 中的某个位置指向块 q 中的某个位置。根节点对应于这样一种不在堆中的位置，它们中包含指向堆中的指针。这些位置可以是寄存器、栈里的变量，或者是虚拟内存中读写数据区域内的全局变量。</p>
+<p><img src="../../public/images/gc%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="img"></p>
+<p>当存在一条从任意根节点出发并到达 p 的有向路径时，我们说节点 p 是<strong>可达的</strong>（reachable）。在任何时刻，不可达节点对应于垃圾，是不能被应用再次使用的。垃圾收集器的角色是维护可达图的某种表示，并通过释放不可达节点且将它们返回给空闲链表，来定期地回收它们。</p>
+<h3 id="32-marksweep-垃圾收集器">3.2 Mark&amp;Sweep 垃圾收集器</h3>
+<p>Mark&amp;Sweep 垃圾收集器由<strong>标记</strong>（mark）阶段和<strong>清除</strong>（sweep）阶段组成，<strong>标记阶段标记出根节点的所有可达的和已分配的后继，而后面的清除阶段释放每个未被标记的已分配块</strong>。块头部中空闲的低位中的一位通常用来表示这个块是否被标记了。</p>
+<p>我们对 Mark&amp;Sweep 的描述将假设使用下列函数，其中 ptr 定义为 <strong>typedef void* ptr</strong>：</p>
+<ul>
+<li><strong>ptr isPtr (ptr p)</strong>。如果 p 指向一个已分配块中的某个字，那么就返回一个指向这个块的起始位置的指针 b。否则返回 NULL。</li>
+<li>**int blockMarked(ptr b)。**如果块 b 是已标记的，那么就返回 true。</li>
+<li>**int blockAllocated (ptr b)。**如果块 b 是已分配的，那么就返回 true。</li>
+<li>**void markBlock (ptr b)。**标记块 b。</li>
+<li>**int length (b)。**返回块 b 的以字为单位的长度(不包括头部)。</li>
+<li>**void unmarkBlock (ptr b)。**将块 b 的状态由已标记的改为未标记的。</li>
+<li>**ptr nextBlock (ptr b)。**返回堆中块 b 的后继。</li>
+</ul>
+<p>标记阶段为每个根节点调用一次 mark 函数，如下所示。如果 p 不指向一个已分配并且未标记的堆块，mark 函数就立即返回。否则，它就标记这个块，并对块中的每个字递归地调用它自己（注：相当于一个深度遍历）。每次对 mark 函数的调用都标记某个根节点的所有未标记并且可达的后继节点。<strong>在标记阶段的末尾，任何未标记的已分配块都被认定为是不可达的，是垃圾，可以在清除阶段回收</strong>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// mark 伪代码
+</span><span class="c1"></span><span class="kt">void</span> <span class="nf">mark</span><span class="p">(</span><span class="n">ptr</span> <span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">b</span> <span class="o">=</span> <span class="n">isPtr</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">blockMarked</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="n">markBlock</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+    <span class="n">len</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">mark</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>清除阶段是对 sweep 函数的一次调用，如下所示。sweep 函数在堆中每个块上反复循环，释放它所遇到的所有未标记的已分配块（也就是垃圾）。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// sweep 伪代码
+</span><span class="c1"></span><span class="kt">void</span> <span class="nf">sweep</span><span class="p">(</span><span class="n">ptr</span> <span class="n">b</span><span class="p">,</span> <span class="n">ptr</span> <span class="n">end</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">b</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">blockMarked</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+            <span class="n">unmarkBlock</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">blockAllocated</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+            <span class="n">free</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">nextBlock</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>下图展示了一个小堆的 Mark&amp;Sweep 的图形化解释（注意这个示例中的箭头表示内存引用，而不是空闲链表指针）。块边界用粗线条表示。每个方块对应于内存中的一个字。每个块有一个字的头部，要么是已标记的，要么是未标记的。</p>
+<p><img src="../../public/images/mark_sweep.png" alt="img"></p>
+<p>初始情况下，图中的堆由六个已分配块组成，其中每个块都是未分配的。第 3 块包含一个指向第 1 块的指针。第 4 块包含指向第 3 块和第 6 块的指针。根指向第 4 块。在标记阶段之后，第 1 块、第 3 块、第 4 块和第 6 块被做了标记，因为它们是从根节点可达的。第 2 块和第 5 块是未标记的，因为它们是不可达的。在清除阶段之后，这两个不可达块被回收到空闲链表。</p>
+<hr>
+<p>参考：</p>
+<ol>
+<li>《深入理解计算机系统》第9章</li>
+</ol>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">kkBill</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        0001-01-01
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/go-slice-insert/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Slice insert/remove</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="https://github.com/kkBill" class="iconfont icon-github" title="github"></a>
+  <a href="https://kkbill.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2017 - 
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>kkBill</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-138883536-1', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+
+
+
+</body>
+</html>
