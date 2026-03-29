@@ -1,305 +1,264 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="en" dir="auto" data-theme="auto">
+
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>kkBill&#39;s Blog</title>
-  <meta name="renderer" content="webkit" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+	<meta name="generator" content="Hugo 0.159.1"><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>kkBill&#39;s Blog</title>
+<meta name="keywords" content="技术, 读书, 生活杂感">
+<meta name="description" content="coding &amp; reading &amp; thinking">
+<meta name="author" content="">
+<link rel="canonical" href="https://kkbill.github.io/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.92a394705e940d8c58b5d19d52962fdd69c340635fa8f5cd6fd22d66f268a7ca.css" integrity="sha256-kqOUcF6UDYxYtdGdUpYv3WnDQGNfqPXNb9ItZvJop8o=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://kkbill.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://kkbill.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://kkbill.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://kkbill.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://kkbill.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="https://kkbill.github.io/index.xml" title="rss">
+<link rel="alternate" type="application/json" href="https://kkbill.github.io/index.json" title="json">
+<link rel="alternate" hreflang="en" href="https://kkbill.github.io/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
 
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
 
-<meta name="theme-color" content="#f8f5ec" />
-<meta name="msapplication-navbutton-color" content="#f8f5ec">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+            .list {
+                background: var(--theme);
+            }
 
+            .toc {
+                background: var(--entry);
+            }
+        }
 
-<meta name="author" content="kkBill" /><meta name="description" content="coding & reading & thinking" /><meta name="keywords" content="技术, 读书, 生活杂感" />
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
 
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
 
+</script><meta property="og:url" content="https://kkbill.github.io/">
+  <meta property="og:site_name" content="kkBill&#39;s Blog">
+  <meta property="og:title" content="kkBill&#39;s Blog">
+  <meta property="og:description" content="coding &amp; reading &amp; thinking">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="website">
 
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="kkBill&#39;s Blog">
+  <meta name="twitter:description" content="coding &amp; reading &amp; thinking">
 
-
-
-<meta name="generator" content="Hugo 0.78.2 with theme even" />
-
-
-<link rel="canonical" href="https://kkbill.github.io/" />
-  <link href="https://kkbill.github.io/index.xml" rel="alternate" type="application/rss+xml" title="kkBill&#39;s Blog" />
-  <link href="https://kkbill.github.io/index.xml" rel="feed" type="application/rss+xml" title="kkBill&#39;s Blog" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/manifest.json">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-
-
-
-<link href="/sass/main.min.c7bc1becf36bcf6a9ebd25d2947e43a2eb745ddb0c9a32b43126fd7fa460c351.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
-
-
-<meta property="og:title" content="kkBill&#39;s Blog" />
-<meta property="og:description" content="coding &amp; reading &amp; thinking" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://kkbill.github.io/" />
-<meta property="og:updated_time" content="2026-03-27T15:33:20+08:00" />
-<meta itemprop="name" content="kkBill&#39;s Blog">
-<meta itemprop="description" content="coding &amp; reading &amp; thinking">
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="kkBill&#39;s Blog"/>
-<meta name="twitter:description" content="coding &amp; reading &amp; thinking"/>
-
-<!--[if lte IE 9]>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
-<![endif]-->
-
-<!--[if lt IE 9]>
-  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
-<![endif]-->
-
-</head>
-<body>
-  <div id="mobile-navbar" class="mobile-navbar">
-  <div class="mobile-header-logo">
-    <a href="/" class="logo">kkBill&#39;s Blog</a>
-  </div>
-  <div class="mobile-navbar-icon">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-</div>
-<nav id="mobile-menu" class="mobile-menu slideout-menu">
-  <ul class="mobile-menu-list">
-    <a href="/">
-        <li class="mobile-menu-item">首页</li>
-      </a><a href="/post/">
-        <li class="mobile-menu-item">归档</li>
-      </a><a href="/tags/">
-        <li class="mobile-menu-item">标签</li>
-      </a><a href="/categories/">
-        <li class="mobile-menu-item">分类</li>
-      </a><a href="/about/">
-        <li class="mobile-menu-item">关于</li>
-      </a>
-  </ul>
-</nav>
-  <div class="container" id="mobile-panel">
-    <header id="header" class="header">
-        <div class="logo-wrapper">
-  <a href="/" class="logo">kkBill&#39;s Blog</a>
-</div>
-
-<nav class="site-navbar">
-  <ul id="menu" class="menu">
-    <li class="menu-item">
-        <a class="menu-item-link" href="/">首页</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/post/">归档</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/tags/">标签</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/categories/">分类</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/about/">关于</a>
-      </li>
-  </ul>
-</nav>
-    </header>
-
-    <main id="main" class="main">
-      <div class="content-wrapper">
-        <div id="content" class="content">
-          <section id="posts" class="posts">
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/new-start/">New Start</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2026-03-27 </span>
-      <div class="post-category">
-          <a href="/categories/%E7%94%9F%E6%B4%BB/"> 生活 </a>
-          </div>
-        <span class="more-meta"> 约 15 字 </span>
-        <span class="more-meta"> 预计阅读 1 分钟 </span>
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      好久没写博客了，这是新的开始！
-    </div>
-    <div class="read-more">
-      <a href="/post/new-start/" class="read-more-link">阅读更多</a>
-    </div>
-  </div>
-</article>
-
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/kubeedge-devicetwin/">KubeEdge DeviceTwin模块详解</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2021-01-06 </span>
-      <div class="post-category">
-          <a href="/categories/kubeedge/"> kubeedge </a>
-          </div>
-        <span class="more-meta"> 约 6914 字 </span>
-        <span class="more-meta"> 预计阅读 14 分钟 </span>
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      1. 概述 首先，明确DeviceTwin模块在KubeEdge架构中所处的位置，如下图所示： 其中，黄色部分是KubEedge设备管理链路相关的组
-    </div>
-    <div class="read-more">
-      <a href="/post/kubeedge-devicetwin/" class="read-more-link">阅读更多</a>
-    </div>
-  </div>
-</article>
-
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/kubeedge-devicecontroller/">KubeEdge DeviceController模块详解</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2021-01-06 </span>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "kkBill's Blog",
+  "url": "https://kkbill.github.io/",
+  "description": "coding \u0026 reading \u0026 thinking",
+  "logo": "https://kkbill.github.io/favicon.ico",
+  "sameAs": [
       
-        <span class="more-meta"> 约 4021 字 </span>
-        <span class="more-meta"> 预计阅读 9 分钟 </span>
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      1. 概述 DeviceController属于KubeEdge的云端组件，负责设备管理。KubeEdge利用Kubernetes提供的CRD机制
-    </div>
-    <div class="read-more">
-      <a href="/post/kubeedge-devicecontroller/" class="read-more-link">阅读更多</a>
-    </div>
-  </div>
-</article>
-
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/unicode-and-character/">字符编码</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2020-12-03 </span>
-      <div class="post-category">
-          <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/"> 计算机基础 </a>
-          </div>
-        <span class="more-meta"> 约 2669 字 </span>
-        <span class="more-meta"> 预计阅读 6 分钟 </span>
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      注：本文主要转自阮一峰老师的字符编码笔记：ASCII，Unicode 和 UTF-8 1.ASCII 码 我们知道，计算机内部，所有信息最终都是一个二进制值。每一个二进制
-    </div>
-    <div class="read-more">
-      <a href="/post/unicode-and-character/" class="read-more-link">阅读更多</a>
-    </div>
-  </div>
-</article>
-
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/go-string/">Strings, bytes, runes and characters in Go</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2020-12-02 </span>
-      <div class="post-category">
-          <a href="/categories/go%E5%9F%BA%E7%A1%80/"> go基础 </a>
-          </div>
-        <span class="more-meta"> 约 3560 字 </span>
-        <span class="more-meta"> 预计阅读 8 分钟 </span>
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      1.string概念 Go标准库builtin给出了所有内置类型的定义，源代码位于src/builtin/builtin.go，其中关于str
-    </div>
-    <div class="read-more">
-      <a href="/post/go-string/" class="read-more-link">阅读更多</a>
-    </div>
-  </div>
-</article>
-
-    </section>
-  
-  <nav class="pagination">
-    
-    <a class="next" href="/page/2/">
-        <span class="next-text">下一页</span>
-        <i class="iconfont icon-right"></i>
-      </a>
-  </nav>
+  ]
+}
+</script>
+</head>
+<body class="list" id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://kkbill.github.io/" accesskey="h" title="kkBill&#39;s Blog (Alt + H)">kkBill&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
         </div>
-        
-
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="social-links">
-      <a href="https://github.com/kkBill" class="iconfont icon-github" title="github"></a>
-  <a href="https://kkbill.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
-</div>
-
-<div class="copyright">
-  <span class="power-by">
-    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
-  </span>
-  <span class="division">|</span>
-  <span class="theme-info">
-    主题 - 
-    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
-  </span>
-
-  
-
-  <span class="copyright-year">
-    &copy; 
-    2017 - 
-    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>kkBill</span>
-  </span>
+        <ul id="menu">
+            <li>
+                <a href="https://kkbill.github.io/" title="Home">
+                    <span class="active">Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/archives/" title="Archives">
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main"> 
+<article class="first-entry home-info">
+    <header class="entry-header">
+        <h1>👋 Welcome to my space</h1>
+    </header>
+    <div class="entry-content">
+        Hi there, this is kkBill. I focus on research and development of AI Agents, including memory, context management and so on.
+    </div>
+    <footer class="entry-footer">
+        <div class="social-icons" >
 </div>
 
     </footer>
+</article>
 
-    <div class="back-to-top" id="back-to-top">
-      <i class="iconfont icon-up"></i>
-    </div>
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">New Start
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>好久没写博客了，这是新的开始！
+</p>
   </div>
-  
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+  <footer class="entry-footer"><span title='2026-03-27 15:33:20 +0800 CST'>March 27, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
+  <a class="entry-link" aria-label="post link to New Start" href="https://kkbill.github.io/posts/new-start/"></a>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://kkbill.github.io/">kkBill&#39;s Blog</a></span> · 
 
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
 
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
 
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-138883536-1', 'auto');
-	ga('set', 'anonymizeIp', true);
-	ga('send', 'pageview');
-}
 </script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
 
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
 
-
-
-
-
-
+</script>
 </body>
+
 </html>
