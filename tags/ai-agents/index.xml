@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Posts on kkBill&#39;s Blog</title>
-    <link>https://kkbill.github.io/posts/</link>
-    <description>Recent content in Posts on kkBill&#39;s Blog</description>
+    <title>AI Agents on kkBill&#39;s Blog</title>
+    <link>https://kkbill.github.io/tags/ai-agents/</link>
+    <description>Recent content in AI Agents on kkBill&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>en</language>
     <lastBuildDate>Fri, 08 May 2026 10:00:00 +0800</lastBuildDate>
-    <atom:link href="https://kkbill.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://kkbill.github.io/tags/ai-agents/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Memory in the LLM Era</title>
       <link>https://kkbill.github.io/posts/memory-in-the-llm-era/</link>
       <pubDate>Fri, 08 May 2026 10:00:00 +0800</pubDate>
       <guid>https://kkbill.github.io/posts/memory-in-the-llm-era/</guid>
       <description>对论文Memory in the LLM Era的解读，梳理智能体记忆框架的模块化架构与策略。</description>
-    </item>
-    <item>
-      <title>New Start</title>
-      <link>https://kkbill.github.io/posts/new-start/</link>
-      <pubDate>Fri, 27 Mar 2026 15:33:20 +0800</pubDate>
-      <guid>https://kkbill.github.io/posts/new-start/</guid>
-      <description>新的开始</description>
     </item>
   </channel>
 </rss>

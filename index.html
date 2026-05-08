@@ -172,11 +172,32 @@
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">Memory in the LLM Era
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> 论文: Memory in the LLM Era: Modular Architectures and Strategies in a Unified Framework
+导读：这篇综述对现有的记忆框架进行了总结，相比于 Memory in the Age of AI Agents 和 Rethinking Memory Mechanisms of Foundation Agents in the Second Half: A Survey，这篇综述篇幅较为简短，覆盖的主题也相对较少——即重点专注于对记忆框架的整理。我觉得这篇文章对新手更加友好，不会一下子引入过多的概念。对于有一定经验的 Agent Memory 从业者而言，这篇文章也是一份不错的复习资料。
+1 引言 智能体能够自主运行、适应多样化环境，并支持针对用户需求的个性化交互。支撑这种智能行为的关键能力之一是记忆机制。如图1所示，通过维护并利用过往交互中的相关信息，记忆机制使智能体能够超越原始的长上下文提示（naive long-context prompting）。为智能体配备记忆机制后，它们能够随时间积累经验、保持上下文知识，并做出更明智的决策——类似于人类依靠记忆从过往经验中学习并指导未来的行动。
+近年来，出现越来越多的记忆方法，以增强智能体在跨交互场景中保留、组织和利用历史信息的能力。这些方法旨在使智能体超越无状态推理（stateless reasoning，不依赖持久化记忆，每次推理独立进行），转而支持长期规划、个性化和自适应决策。表1总结了十种具有代表性的智能体记忆方法，按照四个关键维度进行分类：底层存储结构、信息提取机制、记忆管理策略和检索方法。
+本文提出一个统一的模块化框架，该框架将记忆机制分解为四个阶段，包括 信息提取（Information Extraction）、记忆管理（Memory Management）、记忆存储（Memory Storage）和信息检索（Information Retrieval）。在此框架下，我们在两个典型的长期对话基准测试 LoCoMo 和 LongMemEval 上进行评估。
+2 预备知识 本节介绍现有记忆方法中的一些重要概念和典型工作流，并讨论 RAG 与记忆之间的关系。
+2.1 LLM 相关概念 LLM Prompting
+提示工程通过构建包含任务指令、当前输入以及可选的示例的输入上下文来指定 LLM 的任务。模型的输出则基于该上下文生成。提示工程在基于 LLM 的系统中尤为重要，因为它提供了一种轻量级、无需训练的接口，模型行为可以通过修改输入上下文而无需更改模型参数来重新定向。这一特性使得任务规范和约束可以直接用自然语言表达，从而支持广泛的实际应用。除了最终响应生成外，提示工程还常用于驱动 LLM-centered pipeline 的中间子任务。典型示例包括提取关键信息、整合中间结果等。
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-05-08 10:00:00 +0800 CST'>May 8, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
+  <a class="entry-link" aria-label="post link to Memory in the LLM Era" href="https://kkbill.github.io/posts/memory-in-the-llm-era/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">New Start
     </h2>
   </header>
   <div class="entry-content">
     <p>好久没写博客了，这是新的开始！
+hhh
 </p>
   </div>
   <footer class="entry-footer"><span title='2026-03-27 15:33:20 +0800 CST'>March 27, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>

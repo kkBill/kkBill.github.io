@@ -6,27 +6,47 @@
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
+    <loc>https://kkbill.github.io/tags/ai-agents/</loc>
+    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
     <loc>https://kkbill.github.io/categories/</loc>
-    <lastmod>2026-03-27T15:33:20+08:00</lastmod>
+    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
     <loc>https://kkbill.github.io/</loc>
-    <lastmod>2026-03-27T15:33:20+08:00</lastmod>
+    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>https://kkbill.github.io/posts/new-start/</loc>
-    <lastmod>2026-03-27T15:33:20+08:00</lastmod>
+    <loc>https://kkbill.github.io/tags/memory/</loc>
+    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/memory-in-the-llm-era/</loc>
+    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
     <loc>https://kkbill.github.io/posts/</loc>
-    <lastmod>2026-03-27T15:33:20+08:00</lastmod>
+    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
     <loc>https://kkbill.github.io/tags/</loc>
+    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/categories/%E6%8A%80%E6%9C%AF/</loc>
+    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/new-start/</loc>
     <lastmod>2026-03-27T15:33:20+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
