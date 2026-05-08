@@ -57,12 +57,5 @@
       <guid>https://kkbill.github.io/posts/memory-in-the-llm-era/</guid>
       <description>对论文Memory in the LLM Era的解读，梳理智能体记忆框架的模块化架构与策略。</description>
     </item>
-    <item>
-      <title>New Start</title>
-      <link>https://kkbill.github.io/posts/new-start/</link>
-      <pubDate>Fri, 27 Mar 2026 15:33:20 +0800</pubDate>
-      <guid>https://kkbill.github.io/posts/new-start/</guid>
-      <description>新的开始</description>
-    </item>
   </channel>
 </rss>
