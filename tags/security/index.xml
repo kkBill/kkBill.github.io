@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Security on kkBill&#39;s Blog</title>
+    <link>https://kkbill.github.io/tags/security/</link>
+    <description>Recent content in Security on kkBill&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 31 May 2026 21:38:13 +0800</lastBuildDate>
+    <atom:link href="https://kkbill.github.io/tags/security/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Harness Engineering 08. Governance and Security</title>
+      <link>https://kkbill.github.io/posts/harness-engineering-08-governance/</link>
+      <pubDate>Sun, 31 May 2026 21:38:13 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/harness-engineering-08-governance/</guid>
+      <description>&lt;h1 id=&#34;harness-engineering-08-governance-and-security&#34;&gt;Harness Engineering 08. Governance and Security&lt;/h1&gt;
+&lt;p&gt;这一层讨论如何约束 Agent 行为、确保安全性并建立问责机制。LLM Agent 如今已能执行 shell 命令、提交代码以及调用第三方 API。对于生产环境而言，一个核心问题是：&lt;strong&gt;Agent 应在什么约束条件下行动，当这些约束失效时由谁承担责任&lt;/strong&gt;。治理拥有独立的工具生态系统，包括权限引擎、策略语言、审计流水线和网关控制。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-08-governance/images/image00.png&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-权限模型与身份管理&#34;&gt;1. 权限模型与身份管理&lt;/h2&gt;
+&lt;p&gt;权限模型与身份管理解决的是“&lt;strong&gt;智能体能访问哪些资源&lt;/strong&gt;”这一核心问题。由于智能体执行的任务通常是由自然语言定义的，在部署时往往难以预知其所需的工具集，这使得传统的访问控制模型（如 RBAC 或 ABAC）面临挑战。论文基于粒度的视角展开论述，从部署时固定的静态边界，到每次工具调用时评估的上下文策略，再到多智能体间的访问策略，等等。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;静态权限边界 (Static Boundaries)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;做法&lt;/strong&gt;：在部署前预定义固定的权限范围。例如，Codex 将 shell 命令限制在特定沙箱内，Gemini CLI 则结合工作区范围的文件访问和命令黑白名单。类似地，可以重点关注 &lt;a href=&#34;https://zhanghandong.github.io/harness-engineering-from-cc-to-ai-coding/part5/ch16.html&#34;&gt;Claude Code 的权限系统设计&lt;/a&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;优缺点&lt;/strong&gt;：易于审计和检查，但缺乏针对具体任务的灵活性，无法表达“任务特定的意图”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;上下文相关的特权控制 (Context-dependent Control)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Progent&lt;/strong&gt;：引入了一种DSL，在每次工具调用前评估谓词（包含工具名、参数和环境状态），实现最小特权策略。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Conseca&lt;/strong&gt;：从受信任的上下文中生成任务特定的策略，并由独立的确定性检查器强制执行。这种“策略生成与强制执行分离”的设计对于保证系统的可审计性至关重要。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;身份管理与智能体间的访问控制&lt;/strong&gt;：在多智能体协作或跨系统交互中，建立“&lt;strong&gt;谁在请求权限&lt;/strong&gt;”的身份基石是安全的前提。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;2-生命周期钩子&#34;&gt;2. 生命周期钩子&lt;/h2&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-08-governance/images/image01.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;如果说权限模型定义了“什么是允许的”，那么生命周期钩子则定义了“什么时候触发策略检查”。通过在 Agent Loop 的特定阶段插入钩子，开发者可以在不修改模型核心推理逻辑的情况下，注入安全与合规性逻辑。生命周期钩子的治理作用主要体现在以下四个关键点（见图 14）：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Pre-execution hooks: input guardrails.&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;治理作用： 在数据抵达大模型之前对其进行拦截和验证。&lt;/li&gt;
+&lt;li&gt;具体功能： 主要用于防御提示词注入攻击 (Prompt Injection)。系统会部署专门的分类器（如 PromptShield 或 DataSentinel）来扫描用户输入或从外部检索的内容，识别其中是否隐藏了恶意载荷。这确保了模型接收到的指令是受信任且符合预期的。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Pre-invocation hooks: output guardrails and action validation.&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;治理作用： 在智能体执行工具调用前进行最后的合规性审查。&lt;/li&gt;
+&lt;li&gt;具体功能：
+&lt;ul&gt;
+&lt;li&gt;谓词验证： 使用如 ShieldAgent 这种系统，将安全策略表达为可验证的谓词，检查智能体生成的每个工具调用参数是否越界。&lt;/li&gt;
+&lt;li&gt;控制流保护： 在多智能体系统中，钩子（如 ControlValve）可以监控智能体之间的跳转，防止因“控制流劫持”导致智能体绕过安全节点直接执行高危操作。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Post-execution hooks: information flow control and taint tracking.&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;治理作用： 监控工具执行返回的结果，在这些数据进入 LLM 上下文之前进行处理。&lt;/li&gt;
+&lt;li&gt;具体功能： 为了防止不安全的数据污染模型的后续决策，一些高级系统（如 CaMeL）会通过钩子实现污点追踪(Taint Tracking)。它为每个数据值打上标签，区分“受信任的用户输入”和“不可信的网页检索内容”，确保不受信任的数据不会影响关键的控制决策。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Human-in-the-Loop hooks.&lt;/strong&gt; // 这部分的设计还是可以看 &lt;a href=&#34;https://zhanghandong.github.io/harness-engineering-from-cc-to-ai-coding/part5/ch16.html&#34;&gt;Claude Code 的权限系统设计&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;治理作用： 将人类作为最高层级的决策者，对具有严重后果的操作进行人工审批。&lt;/li&gt;
+&lt;li&gt;具体功能： 设计一个有效的人机协作钩子需要平衡三个维度的工程选择：
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;验证范围 (Validation Scope)&lt;/strong&gt;：明确定义哪些特定的工具调用或操作序列需要触发人工审核。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;警报丰富度 (Alert Richness)&lt;/strong&gt;：在申请审批时，向用户展示多少上下文信息（如智能体的意图、即将执行的具体命令、可能产生的影响）。这对于防止用户由于信息不足而产生的误判至关重要。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;复现策略 (Recurrence Policy)&lt;/strong&gt;： 决定审批的持久性，例如是“仅允许此次操作（Allow-once）”还是“在此会话中永久允许此类操作（Allow-always）”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;治理权衡： Human-in-the-Loop hooks 涉及到 “Liveness vs. Safety” 的权衡。如果钩子设置得过于频繁，用户可能会产生习惯性反应，不经思考地点击“同意”，从而使安全机制失效。合理的钩子设计能减少 84% 的不必要提示，防止用户产生“审批疲劳”或“条件反射式同意”，提升治理的有效性。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;3-组件加固&#34;&gt;3. 组件加固&lt;/h2&gt;
+&lt;p&gt;组件加固的核心逻辑是通过&lt;strong&gt;增强智能体系统中单个组件（如模型和工具）的安全性&lt;/strong&gt;，从源头减少恶意输入触发下游治理钩子的概率。具体而言，组件加固主要通过以下三个层面来增强系统安全性：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

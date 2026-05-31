@@ -6,42 +6,132 @@
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>https://kkbill.github.io/tags/ai-agent/</loc>
-    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
+    <loc>https://kkbill.github.io/categories/agent/</loc>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/agent/</loc>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
     <loc>https://kkbill.github.io/categories/</loc>
-    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/governance/</loc>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/harness-engineering/</loc>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-08-governance/</loc>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
     <loc>https://kkbill.github.io/</loc>
-    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>https://kkbill.github.io/categories/memory/</loc>
-    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
+    <loc>https://kkbill.github.io/tags/llm/</loc>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>https://kkbill.github.io/tags/memory/</loc>
+    <loc>https://kkbill.github.io/posts/</loc>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/security/</loc>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/</loc>
+    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/evaluation/</loc>
+    <lastmod>2026-05-31T21:15:58+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-07-evaluation/</loc>
+    <lastmod>2026-05-31T21:15:58+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-06-observability/</loc>
+    <lastmod>2026-05-31T21:15:45+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/observability/</loc>
+    <lastmod>2026-05-31T21:15:45+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/context/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-01-overview/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-02-execution/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-03-tool/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-04-context/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-05-lifecycle/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/lifecycle/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/sandbox/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/tool/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/agent-memory/</loc>
     <lastmod>2026-05-08T10:00:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
     <loc>https://kkbill.github.io/posts/memory-in-the-llm-era/</loc>
-    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://kkbill.github.io/posts/</loc>
-    <lastmod>2026-05-08T10:00:00+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://kkbill.github.io/tags/</loc>
     <lastmod>2026-05-08T10:00:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>

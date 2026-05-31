@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Sandbox on kkBill&#39;s Blog</title>
+    <link>https://kkbill.github.io/tags/sandbox/</link>
+    <description>Recent content in Sandbox on kkBill&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 31 May 2026 21:11:17 +0800</lastBuildDate>
+    <atom:link href="https://kkbill.github.io/tags/sandbox/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Harness Engineering 02. Execution Environment</title>
+      <link>https://kkbill.github.io/posts/harness-engineering-02-execution/</link>
+      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/harness-engineering-02-execution/</guid>
+      <description>&lt;h1 id=&#34;harness-engineering-02-execution-environment&#34;&gt;Harness Engineering 02. Execution Environment&lt;/h1&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-02-execution/images/image00.png&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-范围与概念&#34;&gt;1. 范围与概念&lt;/h2&gt;
+&lt;h3 id=&#34;11-定义&#34;&gt;1.1 定义&lt;/h3&gt;
+&lt;p&gt;Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。&lt;/p&gt;
+&lt;h3 id=&#34;12-为何沙箱在-agent-时代处于核心地位&#34;&gt;1.2 为何沙箱在 Agent 时代处于核心地位&lt;/h3&gt;
+&lt;p&gt;Agent 时代的沙箱并非仅仅是从传统多租户代码执行继承而来的安全措施。它同时服务于三个不同的目的，而这三者的结合，将沙箱从运维细节提升为 Agent Harness 设计中的一等公民。&lt;/p&gt;
+&lt;p&gt;第一个目的是&lt;strong&gt;安全(security)&lt;/strong&gt;。Agent 沙箱面临的挑战超出了传统多租户代码执行的范畴。LLM 生成的代码在大规模下既不可审计也不可预测，这使得静态审查无法作为主要防御手段。Agent 在多步骤中自主执行，无法获得人工干预。提示注入(prompt injection)攻击模糊了可信的用户意图与恶意输入之间的边界。近期关于沙箱逃逸的实证研究表明，这些担忧并非是假设性的，我们将在1.3节具体展开讨论。&lt;/p&gt;
+&lt;p&gt;第二个目的是&lt;strong&gt;可复现性(reproducibility)&lt;/strong&gt;。长程 Agent 任务以及衡量它们的评估基础设施需要能够将执行状态重置。Docker 容器或 microVM 可以被销毁并按需重建，而开发者的工作站则不行——这一特性使得基于沙箱的评估标准成为现实，如 &lt;a href=&#34;https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf&#34;&gt;SWE-bench&lt;/a&gt;。在训练阶段，当单个任务可能在并行轨迹中被重放数百次时，&lt;strong&gt;缺乏廉价的重置机制本身就是可扩展性的瓶颈&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;第三个目的是&lt;strong&gt;活跃性(liveness)&lt;/strong&gt;，这是 Agent 时代最具特异性的目的。没有沙箱，Agent 希望执行的每一个潜在风险动作都必须向人类发出显式的权限提醒。这会产生两种失效模式：&lt;strong&gt;用户因挫败感而放弃使用 Agent，或者他们反射性地批准一切请求，从而破坏了风险提示的初衷&lt;/strong&gt;。沙箱通过定义一个有界区域来打破这一僵局，在该区域内 Agent 被授权自由行动，将权限从”针对每个动作的询问”转变为”会话级别的配置”。&lt;a href=&#34;https://www.anthropic.com/engineering/claude-code-sandboxing&#34;&gt;Anthropic 报告&lt;/a&gt;称，为 Claude Code 引入沙箱机制后，权限提示减少了 84%，同时保持了安全性。&lt;/p&gt;
+&lt;h2 id=&#34;2-agent-沙箱的类别&#34;&gt;2. Agent 沙箱的类别&lt;/h2&gt;
+&lt;p&gt;2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于&lt;strong&gt;工作负载&lt;/strong&gt;和&lt;strong&gt;使用场景&lt;/strong&gt;将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。&lt;/p&gt;
+&lt;h3 id=&#34;21-通用托管沙箱&#34;&gt;2.1 通用托管沙箱&lt;/h3&gt;
+&lt;p&gt;通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

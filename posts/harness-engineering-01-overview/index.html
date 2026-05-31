@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Harness Engineering 01. Overview | kkBill&#39;s Blog</title>
+<meta name="keywords" content="Agent, LLM, Harness Engineering">
+<meta name="description" content="Harness Engineering 01. Overview
+
+Harness Engineering 系列文章以 Agent Harness Engineering: A Survey  为基础进行整理。
+
+Agent = Model &#43; Harness
+学术界对 LLM-based Agent 的研究，很大程度上一直是对模型本身的研究。研究主要聚焦于模型能做什么：它是否能跨多步规划、可靠的调用工具、检索并压缩相关记忆，或与其他智能体协调等。其隐含假设是，智能体能力主要取决于模型能力——只要有足够强大的模型和足够好的提示词，就能产生足够可靠的输出。
+然而，最新的研究挑战了”仅靠更好的模型就能产生更可靠的智能体”这一假设。三项最新的研究确定了这一点：
+
+Bölük (2026) 仅修改了编辑工具的格式和工具 harness，未对模型做任何改动，就在15个模型上实现了编码基准测试高达10倍的提升。
+LangChain (2026) 仅通过系统提示词重构、中间件上下文注入和自验证钩子，就将 GPT-5.2-Codex 智能体在 Terminal-Bench 2.0 上的表现从 52.8% 提升至 66.5%——13.7个百分点的提升完全来自基础设施层面的改动。
+Meta-Harness (2026) 通过 automated harness 优化，在 Terminal-Bench-2 上达到 76.4%，超越了所有手工设计的方法，且未修改任何模型权重。
+
+以上每种情况，变量都是 harness（即控制上下文构建、工具交互、编排、反馈和执行约束的基础设施层），而模型保持不变。仅靠 harness 优化，就足以实现大幅性能提升，这种模式并非偶然：harness，而非模型本身，是驱动可靠性的关键因素。
+论文将这一模式称为“binding-constraint thesis(约束绑定论)”，即对于长程任务的评估，基准测试的方差可能由 harness 和模型共同驱动。本文以此论题作为后续论述的框架。
+Agent 系统的演进
+ReAct 时代(2022–2023)。ReAct 将 observe-think-act loop 确立为一种基础原语。早期系统的基础设施极为精简：一个 while 循环、一个提示模板和一个小型的工具分发表。AutoGPT 和 BabyAGI 展示了通过任务队列、记忆和工具调度来包装语言模型调用以实现完全自主运行的雄心，同时也暴露出执行失控、上下文膨胀、状态丢失等问题。这些并非单纯的提示问题，而是基础设施问题。
+工具集成与多智能体协调(2023–2024)。Gorilla、ToolLLM 和 Toolformer 的研究表明，工具使用能力可以通过学习或引导产生；CAMEL、ChatDev、MetaGPT 和 Mixture-of-Agents 引入了多智能体协调模式，涵盖角色扮演对话、软件开发组织架构以及分层智能体聚合等多种形式；随着 SWE-bench、AgentBench、WebArena 和 GAIA 的推出，evaluation infrastructure（评估基础设施）日趋成熟；协议标准化则以 Anthropic 的 MCP 和 Google 的 A2A 为起点。">
+<meta name="author" content="">
+<link rel="canonical" href="https://kkbill.github.io/posts/harness-engineering-01-overview/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.92a394705e940d8c58b5d19d52962fdd69c340635fa8f5cd6fd22d66f268a7ca.css" integrity="sha256-kqOUcF6UDYxYtdGdUpYv3WnDQGNfqPXNb9ItZvJop8o=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://kkbill.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://kkbill.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://kkbill.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://kkbill.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://kkbill.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://kkbill.github.io/posts/harness-engineering-01-overview/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-01-overview/">
+  <meta property="og:site_name" content="kkBill&#39;s Blog">
+  <meta property="og:title" content="Harness Engineering 01. Overview">
+  <meta property="og:description" content="Harness Engineering 01. Overview Harness Engineering 系列文章以 Agent Harness Engineering: A Survey 为基础进行整理。
+Agent = Model &#43; Harness 学术界对 LLM-based Agent 的研究，很大程度上一直是对模型本身的研究。研究主要聚焦于模型能做什么：它是否能跨多步规划、可靠的调用工具、检索并压缩相关记忆，或与其他智能体协调等。其隐含假设是，智能体能力主要取决于模型能力——只要有足够强大的模型和足够好的提示词，就能产生足够可靠的输出。
+然而，最新的研究挑战了”仅靠更好的模型就能产生更可靠的智能体”这一假设。三项最新的研究确定了这一点：
+Bölük (2026) 仅修改了编辑工具的格式和工具 harness，未对模型做任何改动，就在15个模型上实现了编码基准测试高达10倍的提升。 LangChain (2026) 仅通过系统提示词重构、中间件上下文注入和自验证钩子，就将 GPT-5.2-Codex 智能体在 Terminal-Bench 2.0 上的表现从 52.8% 提升至 66.5%——13.7个百分点的提升完全来自基础设施层面的改动。 Meta-Harness (2026) 通过 automated harness 优化，在 Terminal-Bench-2 上达到 76.4%，超越了所有手工设计的方法，且未修改任何模型权重。 以上每种情况，变量都是 harness（即控制上下文构建、工具交互、编排、反馈和执行约束的基础设施层），而模型保持不变。仅靠 harness 优化，就足以实现大幅性能提升，这种模式并非偶然：harness，而非模型本身，是驱动可靠性的关键因素。
+论文将这一模式称为“binding-constraint thesis(约束绑定论)”，即对于长程任务的评估，基准测试的方差可能由 harness 和模型共同驱动。本文以此论题作为后续论述的框架。
+Agent 系统的演进 ReAct 时代(2022–2023)。ReAct 将 observe-think-act loop 确立为一种基础原语。早期系统的基础设施极为精简：一个 while 循环、一个提示模板和一个小型的工具分发表。AutoGPT 和 BabyAGI 展示了通过任务队列、记忆和工具调度来包装语言模型调用以实现完全自主运行的雄心，同时也暴露出执行失控、上下文膨胀、状态丢失等问题。这些并非单纯的提示问题，而是基础设施问题。
+工具集成与多智能体协调(2023–2024)。Gorilla、ToolLLM 和 Toolformer 的研究表明，工具使用能力可以通过学习或引导产生；CAMEL、ChatDev、MetaGPT 和 Mixture-of-Agents 引入了多智能体协调模式，涵盖角色扮演对话、软件开发组织架构以及分层智能体聚合等多种形式；随着 SWE-bench、AgentBench、WebArena 和 GAIA 的推出，evaluation infrastructure（评估基础设施）日趋成熟；协议标准化则以 Anthropic 的 MCP 和 Google 的 A2A 为起点。">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-05-31T21:11:17+08:00">
+    <meta property="article:modified_time" content="2026-05-31T21:11:17+08:00">
+    <meta property="article:tag" content="Agent">
+    <meta property="article:tag" content="LLM">
+    <meta property="article:tag" content="Harness Engineering">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Harness Engineering 01. Overview">
+  <meta name="twitter:description" content="Harness Engineering 01. Overview Harness Engineering 系列文章以 Agent Harness Engineering: A Survey 为基础进行整理。
+Agent = Model &#43; Harness 学术界对 LLM-based Agent 的研究，很大程度上一直是对模型本身的研究。研究主要聚焦于模型能做什么：它是否能跨多步规划、可靠的调用工具、检索并压缩相关记忆，或与其他智能体协调等。其隐含假设是，智能体能力主要取决于模型能力——只要有足够强大的模型和足够好的提示词，就能产生足够可靠的输出。
+然而，最新的研究挑战了”仅靠更好的模型就能产生更可靠的智能体”这一假设。三项最新的研究确定了这一点：
+Bölük (2026) 仅修改了编辑工具的格式和工具 harness，未对模型做任何改动，就在15个模型上实现了编码基准测试高达10倍的提升。 LangChain (2026) 仅通过系统提示词重构、中间件上下文注入和自验证钩子，就将 GPT-5.2-Codex 智能体在 Terminal-Bench 2.0 上的表现从 52.8% 提升至 66.5%——13.7个百分点的提升完全来自基础设施层面的改动。 Meta-Harness (2026) 通过 automated harness 优化，在 Terminal-Bench-2 上达到 76.4%，超越了所有手工设计的方法，且未修改任何模型权重。 以上每种情况，变量都是 harness（即控制上下文构建、工具交互、编排、反馈和执行约束的基础设施层），而模型保持不变。仅靠 harness 优化，就足以实现大幅性能提升，这种模式并非偶然：harness，而非模型本身，是驱动可靠性的关键因素。
+论文将这一模式称为“binding-constraint thesis(约束绑定论)”，即对于长程任务的评估，基准测试的方差可能由 harness 和模型共同驱动。本文以此论题作为后续论述的框架。
+Agent 系统的演进 ReAct 时代(2022–2023)。ReAct 将 observe-think-act loop 确立为一种基础原语。早期系统的基础设施极为精简：一个 while 循环、一个提示模板和一个小型的工具分发表。AutoGPT 和 BabyAGI 展示了通过任务队列、记忆和工具调度来包装语言模型调用以实现完全自主运行的雄心，同时也暴露出执行失控、上下文膨胀、状态丢失等问题。这些并非单纯的提示问题，而是基础设施问题。
+工具集成与多智能体协调(2023–2024)。Gorilla、ToolLLM 和 Toolformer 的研究表明，工具使用能力可以通过学习或引导产生；CAMEL、ChatDev、MetaGPT 和 Mixture-of-Agents 引入了多智能体协调模式，涵盖角色扮演对话、软件开发组织架构以及分层智能体聚合等多种形式；随着 SWE-bench、AgentBench、WebArena 和 GAIA 的推出，evaluation infrastructure（评估基础设施）日趋成熟；协议标准化则以 Anthropic 的 MCP 和 Google 的 A2A 为起点。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://kkbill.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Harness Engineering 01. Overview",
+      "item": "https://kkbill.github.io/posts/harness-engineering-01-overview/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Harness Engineering 01. Overview",
+  "name": "Harness Engineering 01. Overview",
+  "description": "Harness Engineering 01. Overview Harness Engineering 系列文章以 Agent Harness Engineering: A Survey 为基础进行整理。\nAgent = Model + Harness 学术界对 LLM-based Agent 的研究，很大程度上一直是对模型本身的研究。研究主要聚焦于模型能做什么：它是否能跨多步规划、可靠的调用工具、检索并压缩相关记忆，或与其他智能体协调等。其隐含假设是，智能体能力主要取决于模型能力——只要有足够强大的模型和足够好的提示词，就能产生足够可靠的输出。\n然而，最新的研究挑战了”仅靠更好的模型就能产生更可靠的智能体”这一假设。三项最新的研究确定了这一点：\nBölük (2026) 仅修改了编辑工具的格式和工具 harness，未对模型做任何改动，就在15个模型上实现了编码基准测试高达10倍的提升。 LangChain (2026) 仅通过系统提示词重构、中间件上下文注入和自验证钩子，就将 GPT-5.2-Codex 智能体在 Terminal-Bench 2.0 上的表现从 52.8% 提升至 66.5%——13.7个百分点的提升完全来自基础设施层面的改动。 Meta-Harness (2026) 通过 automated harness 优化，在 Terminal-Bench-2 上达到 76.4%，超越了所有手工设计的方法，且未修改任何模型权重。 以上每种情况，变量都是 harness（即控制上下文构建、工具交互、编排、反馈和执行约束的基础设施层），而模型保持不变。仅靠 harness 优化，就足以实现大幅性能提升，这种模式并非偶然：harness，而非模型本身，是驱动可靠性的关键因素。\n论文将这一模式称为“binding-constraint thesis(约束绑定论)”，即对于长程任务的评估，基准测试的方差可能由 harness 和模型共同驱动。本文以此论题作为后续论述的框架。\nAgent 系统的演进 ReAct 时代(2022–2023)。ReAct 将 observe-think-act loop 确立为一种基础原语。早期系统的基础设施极为精简：一个 while 循环、一个提示模板和一个小型的工具分发表。AutoGPT 和 BabyAGI 展示了通过任务队列、记忆和工具调度来包装语言模型调用以实现完全自主运行的雄心，同时也暴露出执行失控、上下文膨胀、状态丢失等问题。这些并非单纯的提示问题，而是基础设施问题。\n工具集成与多智能体协调(2023–2024)。Gorilla、ToolLLM 和 Toolformer 的研究表明，工具使用能力可以通过学习或引导产生；CAMEL、ChatDev、MetaGPT 和 Mixture-of-Agents 引入了多智能体协调模式，涵盖角色扮演对话、软件开发组织架构以及分层智能体聚合等多种形式；随着 SWE-bench、AgentBench、WebArena 和 GAIA 的推出，evaluation infrastructure（评估基础设施）日趋成熟；协议标准化则以 Anthropic 的 MCP 和 Google 的 A2A 为起点。\n",
+  "keywords": [
+    "Agent", "LLM", "Harness Engineering"
+  ],
+  "articleBody": "Harness Engineering 01. Overview Harness Engineering 系列文章以 Agent Harness Engineering: A Survey 为基础进行整理。\nAgent = Model + Harness 学术界对 LLM-based Agent 的研究，很大程度上一直是对模型本身的研究。研究主要聚焦于模型能做什么：它是否能跨多步规划、可靠的调用工具、检索并压缩相关记忆，或与其他智能体协调等。其隐含假设是，智能体能力主要取决于模型能力——只要有足够强大的模型和足够好的提示词，就能产生足够可靠的输出。\n然而，最新的研究挑战了”仅靠更好的模型就能产生更可靠的智能体”这一假设。三项最新的研究确定了这一点：\nBölük (2026) 仅修改了编辑工具的格式和工具 harness，未对模型做任何改动，就在15个模型上实现了编码基准测试高达10倍的提升。 LangChain (2026) 仅通过系统提示词重构、中间件上下文注入和自验证钩子，就将 GPT-5.2-Codex 智能体在 Terminal-Bench 2.0 上的表现从 52.8% 提升至 66.5%——13.7个百分点的提升完全来自基础设施层面的改动。 Meta-Harness (2026) 通过 automated harness 优化，在 Terminal-Bench-2 上达到 76.4%，超越了所有手工设计的方法，且未修改任何模型权重。 以上每种情况，变量都是 harness（即控制上下文构建、工具交互、编排、反馈和执行约束的基础设施层），而模型保持不变。仅靠 harness 优化，就足以实现大幅性能提升，这种模式并非偶然：harness，而非模型本身，是驱动可靠性的关键因素。\n论文将这一模式称为“binding-constraint thesis(约束绑定论)”，即对于长程任务的评估，基准测试的方差可能由 harness 和模型共同驱动。本文以此论题作为后续论述的框架。\nAgent 系统的演进 ReAct 时代(2022–2023)。ReAct 将 observe-think-act loop 确立为一种基础原语。早期系统的基础设施极为精简：一个 while 循环、一个提示模板和一个小型的工具分发表。AutoGPT 和 BabyAGI 展示了通过任务队列、记忆和工具调度来包装语言模型调用以实现完全自主运行的雄心，同时也暴露出执行失控、上下文膨胀、状态丢失等问题。这些并非单纯的提示问题，而是基础设施问题。\n工具集成与多智能体协调(2023–2024)。Gorilla、ToolLLM 和 Toolformer 的研究表明，工具使用能力可以通过学习或引导产生；CAMEL、ChatDev、MetaGPT 和 Mixture-of-Agents 引入了多智能体协调模式，涵盖角色扮演对话、软件开发组织架构以及分层智能体聚合等多种形式；随着 SWE-bench、AgentBench、WebArena 和 GAIA 的推出，evaluation infrastructure（评估基础设施）日趋成熟；协议标准化则以 Anthropic 的 MCP 和 Google 的 A2A 为起点。\nHarness(2025–2026)。到 2025~2026 年，工业界逐渐把注意力转移到 Harness 上。OpenAI 明确将 “harness engineering” 定义为围绕 Codex 智能体设计环境、约束、文档和反馈循环的学科，并于2026年2月报告称，一个小团队在5个月内通过智能体而非手工编写生产代码，产出了约一百万行内部产品代码；Anthropic 的博客也得出了同样的原则：有效的智能体应使用简单且可检查的架构（Building effective agents）；工具接口应为智能体使用而设计，而非照搬面向人类的 API（Writing effective tools for agents — with agents）；上下文应渐进式披露（Effective context engineering for AI agents）；长程工作需要持久化的交接工件和可恢复的执行基础设施（Effective harnesses for long-running agents, Harness design for long-running application development）；软件工程领域的权威人物 Martin Fowler（注：即《重构-改善既有代码的设计》作者） 在其博客 Harness engineering for coding agent users 中将 harness engineering 描述为 “AI 智能体的控制论调节器”，由围绕 LLM 形成控制回路的前馈引导和反馈传感器组成。\n",
+  "wordCount" : "142",
+  "inLanguage": "en",
+  "datePublished": "2026-05-31T21:11:17+08:00",
+  "dateModified": "2026-05-31T21:11:17+08:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://kkbill.github.io/posts/harness-engineering-01-overview/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "kkBill's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://kkbill.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://kkbill.github.io/" accesskey="h" title="kkBill&#39;s Blog (Alt + H)">kkBill&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://kkbill.github.io/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/archives/" title="Archives">
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Harness Engineering 01. Overview
+    </h1>
+    <div class="post-meta"><span title='2026-05-31 21:11:17 +0800 CST'>May 31, 2026</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#harness-engineering-01-overview" aria-label="Harness Engineering 01. Overview">Harness Engineering 01. Overview</a><ul>
+                        
+                <li>
+                    <a href="#agent--model--harness" aria-label="Agent = Model &#43; Harness">Agent = Model + Harness</a></li>
+                <li>
+                    <a href="#agent-%e7%b3%bb%e7%bb%9f%e7%9a%84%e6%bc%94%e8%bf%9b" aria-label="Agent 系统的演进">Agent 系统的演进</a></li>
+                <li>
+                    <a href="#harness-%e7%a9%b6%e7%ab%9f%e6%98%af%e4%bb%80%e4%b9%88" aria-label="Harness 究竟是什么">Harness 究竟是什么</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="harness-engineering-01-overview">Harness Engineering 01. Overview<a hidden class="anchor" aria-hidden="true" href="#harness-engineering-01-overview">#</a></h1>
+<blockquote>
+<p>Harness Engineering 系列文章以 <a href="https://openreview.net/pdf?id=eONq7FdiHa">Agent Harness Engineering: A Survey</a>  为基础进行整理。</p>
+</blockquote>
+<h2 id="agent--model--harness">Agent = Model + Harness<a hidden class="anchor" aria-hidden="true" href="#agent--model--harness">#</a></h2>
+<p>学术界对 LLM-based Agent 的研究，很大程度上一直是对模型本身的研究。研究主要聚焦于模型能做什么：它是否能跨多步规划、可靠的调用工具、检索并压缩相关记忆，或与其他智能体协调等。其隐含假设是，智能体能力主要取决于模型能力——<strong>只要有足够强大的模型和足够好的提示词，就能产生足够可靠的输出</strong>。</p>
+<p>然而，最新的研究<strong>挑战了”仅靠更好的模型就能产生更可靠的智能体”这一假设</strong>。三项最新的研究确定了这一点：</p>
+<ul>
+<li><a href="https://blog.can.ac/2026/02/12/the-harness-problem/">Bölük (2026)</a> 仅修改了编辑工具的格式和工具 harness，未对模型做任何改动，就在15个模型上实现了编码基准测试高达10倍的提升。</li>
+<li><a href="https://www.langchain.com/blog/improving-deep-agents-with-harness-engineering">LangChain (2026)</a> 仅通过系统提示词重构、中间件上下文注入和自验证钩子，就将 GPT-5.2-Codex 智能体在 Terminal-Bench 2.0 上的表现从 52.8% 提升至 66.5%——13.7个百分点的提升完全来自基础设施层面的改动。</li>
+<li><a href="https://arxiv.org/pdf/2603.28052">Meta-Harness (2026)</a> 通过 automated harness 优化，在 Terminal-Bench-2 上达到 76.4%，超越了所有手工设计的方法，且未修改任何模型权重。</li>
+</ul>
+<p>以上每种情况，变量都是 harness（即控制上下文构建、工具交互、编排、反馈和执行约束的基础设施层），而模型保持不变。仅靠 harness 优化，就足以实现大幅性能提升，这种模式并非偶然：<strong>harness，而非模型本身，是驱动可靠性的关键因素</strong>。</p>
+<p>论文将这一模式称为“binding-constraint thesis(约束绑定论)”，即对于长程任务的评估，<strong>基准测试的方差可能由 harness 和模型共同驱动</strong>。本文以此论题作为后续论述的框架。</p>
+<h2 id="agent-系统的演进">Agent 系统的演进<a hidden class="anchor" aria-hidden="true" href="#agent-系统的演进">#</a></h2>
+<p><strong>ReAct 时代(2022–2023)</strong>。<a href="https://arxiv.org/pdf/2210.03629">ReAct</a> 将 observe-think-act loop 确立为一种基础原语。早期系统的基础设施极为精简：一个 while 循环、一个提示模板和一个小型的工具分发表。AutoGPT 和 BabyAGI 展示了通过任务队列、记忆和工具调度来包装语言模型调用以实现完全自主运行的雄心，同时也暴露出执行失控、上下文膨胀、状态丢失等问题。这些并非单纯的提示问题，而是基础设施问题。</p>
+<p><strong>工具集成与多智能体协调(2023–2024)</strong>。Gorilla、<a href="https://proceedings.iclr.cc/paper_files/paper/2024/file/28e50ee5b72e90b50e7196fde8ea260e-Paper-Conference.pdf">ToolLLM</a> 和 <a href="https://proceedings.neurips.cc/paper_files/paper/2023/file/d842425e4bf79ba039352da0f658a906-Paper-Conference.pdf">Toolformer</a> 的研究表明，工具使用能力可以通过学习或引导产生；CAMEL、ChatDev、MetaGPT 和 Mixture-of-Agents 引入了多智能体协调模式，涵盖角色扮演对话、软件开发组织架构以及分层智能体聚合等多种形式；随着 <a href="https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf">SWE-bench</a>、AgentBench、WebArena 和 GAIA 的推出，evaluation infrastructure（评估基础设施）日趋成熟；协议标准化则以 Anthropic 的 MCP 和 Google 的 A2A 为起点。</p>
+<p><strong>Harness(2025–2026)</strong>。到 2025~2026 年，工业界逐渐把注意力转移到 Harness 上。OpenAI 明确将 <strong>“<a href="https://openai.com/zh-Hans-CN/index/harness-engineering/">harness engineering</a>”</strong> 定义为围绕 Codex 智能体设计环境、约束、文档和反馈循环的学科，并于2026年2月报告称，一个小团队在5个月内通过智能体而非手工编写生产代码，产出了约一百万行内部产品代码；Anthropic 的博客也得出了同样的原则：有效的智能体应使用简单且可检查的架构（<a href="https://www.anthropic.com/engineering/building-effective-agents"><strong>Building effective agents</strong></a>）；工具接口应为智能体使用而设计，而非照搬面向人类的 API（<strong><a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Writing effective tools for agents — with agents</a></strong>）；上下文应渐进式披露（<strong><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering for AI agents</a></strong>）；长程工作需要持久化的交接工件和可恢复的执行基础设施（<strong><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Effective harnesses for long-running agents</a></strong>, <strong><a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">Harness design for long-running application development</a></strong>）；软件工程领域的权威人物 Martin Fowler（注：即《重构-改善既有代码的设计》作者） 在其博客 <strong><a href="https://martinfowler.com/articles/harness-engineering.html">Harness engineering for coding agent users</a></strong> 中将 harness engineering 描述为 “AI 智能体的控制论调节器”，由围绕 LLM 形成控制回路的前馈引导和反馈传感器组成。</p>
+<p><img alt=" <a href=\"https://martinfowler.com/articles/harness-engineering.html\">https://martinfowler.com/articles/harness-engineering.html</a>" loading="lazy" src="/posts/harness-engineering-01-overview/images/image00.png"></p>
+<p>在此期间，该领域在”选择工程化什么”这一问题上呈现出清晰的三个阶段。</p>
+<p><strong>第一阶段是提示工程(Prompt Engineering, 2022–2024)</strong>。核心手段是输入提示文本，通过精心设计的指令、少样本示例和推理模板来进行优化。工程范围较为局限：优化单个文本输入以完成单次模型调用。</p>
+<p><strong>第二阶段是上下文工程(Context Engineering, 2025)</strong>。随着 Agent 的运行周期变长，核心约束从 “输入是什么” 转变为 “模型在每一步应该看到什么信息”。这一阶段聚焦于上下文管理：每一轮注入什么内容、如何检索和压缩记忆、如何按相关性对工具结果排序，以及如何处理上下文窗口饱和。范围从管理单个输入扩展到管理流入上下文窗口的多条信息流。</p>
+<p><strong>第三阶段是Harness 工程(Harness Engineering, 2026)</strong>。随着模型能力足以处理长程任务，可靠性越来越依赖于维护状态、协调工具、注入反馈、强制执行约束和验证进度的基础设施包装层。因此，Harness Engineering 关注的是：必须围绕模型设计什么样的治理、约束、反馈循环和执行控制，才能使智能体系统可靠。</p>
+<p>每个阶段都包含前一个阶段，Harness Engineering 包含 Context Engineering，Context Engineering 包含 Prompt Engineering。三个阶段在时间上和概念上相互重叠，并没有明确的边界。</p>
+<p><img alt="image.png" loading="lazy" src="/posts/harness-engineering-01-overview/images/image01.png"></p>
+<h2 id="harness-究竟是什么">Harness 究竟是什么<a hidden class="anchor" aria-hidden="true" href="#harness-究竟是什么">#</a></h2>
+<p>论文提出了 Harness Engineering 七层分类体系，称为<strong>ETCLOVG</strong>，分别代表 Execution（执行）、Tooling（工具）、Context（上下文）、Lifecycle（生命周期）、Observability（可观测性）、Verification（验证）和 Governance（治理），如下所示。</p>
+<p><img alt="image.png" loading="lazy" src="/posts/harness-engineering-01-overview/images/image02.png"></p>
+<p>前四层描述了 Harness 的核心结构，后三层则是围绕该核心的控制平面。</p>
+<ul>
+<li><strong>Execution</strong>：执行环境。Agent 在哪里跑？本地、容器、浏览器、桌面、远程沙箱？边界在哪里？</li>
+<li><strong>Tooling</strong>：工具接口。工具怎么描述，怎么发现，怎么调用，怎么防止模型乱选工具？</li>
+<li><strong>Context</strong>：上下文和记忆。短期上下文、会话状态、长期记忆怎么管理？</li>
+<li><strong>Lifecycle</strong>：生命周期和编排。一个 Agent 是单轮执行，还是多轮循环？是一个 Agent 干到底，还是 planner、executor、reviewer 分工？</li>
+<li><strong>Observability</strong>：可观测性。每次模型调用、工具调用、检索、报错、重试、token 成本、延迟，都要能追踪。</li>
+<li><strong>Verification</strong>：验证和评估。结果对不对？失败到底是模型错了、工具错了、上下文错了，还是测试环境错了？</li>
+<li><strong>Governance</strong>：治理和安全。Agent 有什么权限？能不能发邮件、改代码、调 API、读私有数据？谁来审批？谁来审计？</li>
+</ul>
+<p>很多人理解 Agent，可能还停在“模型 + 工具调用 + 上下文管理” 这一层。这篇论文给出了更加系统化的定义，真正的 Agent 产品，在模型之外，还需要以上 7 层组件的共同协作。否则，它可能只是个能够演示的 demo，不足以支撑长期稳定的运行。</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://kkbill.github.io/tags/agent/">Agent</a></li>
+      <li><a href="https://kkbill.github.io/tags/llm/">LLM</a></li>
+      <li><a href="https://kkbill.github.io/tags/harness-engineering/">Harness Engineering</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://kkbill.github.io/posts/harness-engineering-06-observability/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Harness Engineering 06. Observability</span>
+  </a>
+  <a class="next" href="https://kkbill.github.io/posts/harness-engineering-02-execution/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Harness Engineering 02. Execution Environment</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://kkbill.github.io/">kkBill&#39;s Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

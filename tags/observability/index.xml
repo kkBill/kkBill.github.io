@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Observability on kkBill&#39;s Blog</title>
+    <link>https://kkbill.github.io/tags/observability/</link>
+    <description>Recent content in Observability on kkBill&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 31 May 2026 21:15:45 +0800</lastBuildDate>
+    <atom:link href="https://kkbill.github.io/tags/observability/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Harness Engineering 06. Observability</title>
+      <link>https://kkbill.github.io/posts/harness-engineering-06-observability/</link>
+      <pubDate>Sun, 31 May 2026 21:15:45 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/harness-engineering-06-observability/</guid>
+      <description>&lt;h1 id=&#34;harness-engineering-06-observability&#34;&gt;Harness Engineering 06. Observability&lt;/h1&gt;
+&lt;p&gt;这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-06-observability/images/image00.png&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;1-追踪与监控平台-tracing-and-monitoring&#34;&gt;1. 追踪与监控平台 (Tracing and Monitoring)&lt;/h3&gt;
+&lt;p&gt;可观测性的基石是&lt;strong&gt;结构化轨迹捕获(Structured Trace Collection)&lt;/strong&gt;，其核心在于将每一次 LLM 调用、工具执行和检索步骤记录为一棵 tree of spans。这种结构支持对智能体行为进行过滤、回放和深度分析。&lt;/p&gt;
+&lt;p&gt;论文列举了 Langfuse、Opik、Arize Phoenix 和 MLflow 等代表性平台。为了降低系统集成门槛，业界正趋向于采用统一的检测标准，而 &lt;a href=&#34;https://github.com/open-telemetry&#34;&gt;OpenTelemetry&lt;/a&gt; (OTel) 逐步成为通用的事实标准。OTel 社区发布了生成式 AI 的语义规范，定义了模型名称、温度、Token 计数和延迟等标准属性。有两个开源项目落地了这套规范，分别是 OpenLLMetry 和 OpenInference。通过 OTel，智能体轨迹数据可以无缝流入传统的微服务监控后端（如 Prometheus, Jaeger, Grafana等），减少了运维负担。&lt;/p&gt;
+&lt;p&gt;此外，作者还介绍了两种更具创新性的监测范式：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;基于 eBPF 的系统级监控 (&lt;a href=&#34;https://arxiv.org/abs/2508.02736&#34;&gt;AgentSight&lt;/a&gt;)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;机制：从应用程序进程外部进行监控，在 SSL 边界拦截加密流量以捕获意图，并监控内核事件（进程创建、文件 I/O、网络调用）以捕获动作。&lt;/li&gt;
+&lt;li&gt;核心优势：具有框架无关性，且不会被已攻破或配置错误的智能体绕过，这对安全性要求极高的部署场景至关重要。其 CPU 开销极低（小于 3%）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;结构化日志 (&lt;a href=&#34;https://arxiv.org/abs/2602.10133&#34;&gt;AgentTrace&lt;/a&gt;)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;认知表面（Cognitive）：捕捉显式的推理步骤、计划和反思。这对于调试由“推理错误”而非“系统错误”引发的故障至关重要。&lt;/li&gt;
+&lt;li&gt;操作表面（Operational）：记录工具调用和 API 交互。&lt;/li&gt;
+&lt;li&gt;上下文表面（Contextual）：记录环境状态和用户输入。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt=&#34;AgentTrace: &lt;a href=\&#34;https://arxiv.org/abs/2602.10133\&#34;&gt;https://arxiv.org/abs/2602.10133&lt;/a&gt;&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-06-observability/images/image01.png&#34;&gt;
+&lt;em&gt;引用 AgentTrace: &lt;a href=&#34;https://arxiv.org/abs/2602.10133&#34;&gt;https://arxiv.org/abs/2602.10133&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;在看可观测性相关的内容时，以及平时与同事的交流中，发现大家对 trace 和 trajectory 这两个词常常混着用，宏观上它们应该是同义的，但不太能区分两者间细微的差异。故在此做一个记录与说明。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

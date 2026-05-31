@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Lifecycle on kkBill&#39;s Blog</title>
+    <link>https://kkbill.github.io/tags/lifecycle/</link>
+    <description>Recent content in Lifecycle on kkBill&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 31 May 2026 21:11:17 +0800</lastBuildDate>
+    <atom:link href="https://kkbill.github.io/tags/lifecycle/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Harness Engineering 05. Lifecycle</title>
+      <link>https://kkbill.github.io/posts/harness-engineering-05-lifecycle/</link>
+      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/harness-engineering-05-lifecycle/</guid>
+      <description>&lt;h1 id=&#34;harness-engineering-05-lifecycle&#34;&gt;Harness Engineering 05. Lifecycle&lt;/h1&gt;
+&lt;p&gt;生命周期与编排关注 Agent 系统如何在多次模型调用、工具调用、失败、修订和交接中推进任务。这一层将两个关注点结合起来：&lt;strong&gt;Agent 的执行流(execution flow)，以及该执行流所读写的操作状态(operational state)&lt;/strong&gt;。在长程任务中，可靠性不仅取决于模型能否生成一个好的下一步动作，还取决于 harness 能否记住已经发生了什么、决定下一步该做什么、如何从错误中恢复、协调子任务，以及在任务完成时停止。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-05-lifecycle/images/image00.png&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-生命周期状态管理&#34;&gt;1. 生命周期状态管理&lt;/h2&gt;
+&lt;p&gt;生命周期状态(Lifecycle State)指的是&lt;strong&gt;为了 Agent 能持续完成任务，系统必须在幕后维护的一套“账本”或“进度表”&lt;/strong&gt;。如果把智能体执行任务比作玩一款大型单机游戏，生命周期状态就是你的“存档文件”，确保你即使关机重启，也能从上次停下的地方继续，而不是重头再来。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;生命周期状态到底包含什么？&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;它不是大模型看到的“对话历史”，而是&lt;strong&gt;智能体系统运行所需的“管理数据”&lt;/strong&gt;。主要包括：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;待办事项&lt;/strong&gt;：还没完成的子任务清单。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;中间产物&lt;/strong&gt;：执行过程中产生的临时文件、代码库的变更（git changes）或中间生成的各种构件。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;协调元数据&lt;/strong&gt;：多个智能体协作时的进度同步信息。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;断点续传机制&lt;/strong&gt;：任务失败后的重试策略和恢复点（checkpoints）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;核心区别：它与“上下文”有何不同？&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;上下文&lt;/strong&gt;：是喂给模型看的“参考资料”（如检索到的文档、对话历史、记忆等），目的是为了让模型“推理”。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;生命周期状态&lt;/strong&gt;：是智能体系统自己的“工作日志”，目的是为了让系统更好地“控制”流程。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;两种管理模式：无状态 vs. 有状态&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;论文探讨了开发者在设计这个“账本”时面临的权衡：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;&lt;strong&gt;模式&lt;/strong&gt;&lt;/th&gt;
+          &lt;th&gt;&lt;strong&gt;做法&lt;/strong&gt;&lt;/th&gt;
+          &lt;th&gt;&lt;strong&gt;优点&lt;/strong&gt;&lt;/th&gt;
+          &lt;th&gt;&lt;strong&gt;缺点&lt;/strong&gt;&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;无状态 (Stateless Replay)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;每次都通过读取所有的对话记录，强行让模型“回忆”起目前的进度。&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;易于审计和重现&lt;/strong&gt;，逻辑简单。&lt;/td&gt;
+          &lt;td&gt;任务越长，对话记录就越臃肿，&lt;strong&gt;Token 成本极高&lt;/strong&gt;。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;有状态 (Stateful Execution)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;把进度存进数据库或文件系统。下一次直接读取这个“存档”。&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;效率高&lt;/strong&gt;，支持超长周期的任务，可以快速恢复。&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;调试和一致性维护&lt;/strong&gt;相对困难（比如存档坏了怎么办）。&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;2-single-agent-循环&#34;&gt;2. Single-Agent 循环&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;单 Agent 循环是 Agent 系统中的基本执行单元&lt;/strong&gt;。单个 Agent 通过工具使用和反馈与环境交互，不存在多个 Agent 之间的显式协调。单 Agent 循环遵循 ReAct 范式，交替进行推理(reasoning)、行动(action)和观察(observation)。这类系统的行为不仅由模型决定，还由构造提示词、调用工具、管理控制流、将工具输出反馈到后续步骤等 harness 决定。&lt;/p&gt;
+&lt;p&gt;在这一层级，论文根据系统如何维护运行状态，将 Single-Agent 内部循环分为两种主要模式：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

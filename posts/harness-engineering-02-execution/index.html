@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Harness Engineering 02. Execution Environment | kkBill&#39;s Blog</title>
+<meta name="keywords" content="Agent, LLM, Harness Engineering, Sandbox">
+<meta name="description" content="Harness Engineering 02. Execution Environment
+
+1. 范围与概念
+1.1 定义
+Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。
+1.2 为何沙箱在 Agent 时代处于核心地位
+Agent 时代的沙箱并非仅仅是从传统多租户代码执行继承而来的安全措施。它同时服务于三个不同的目的，而这三者的结合，将沙箱从运维细节提升为 Agent Harness 设计中的一等公民。
+第一个目的是安全(security)。Agent 沙箱面临的挑战超出了传统多租户代码执行的范畴。LLM 生成的代码在大规模下既不可审计也不可预测，这使得静态审查无法作为主要防御手段。Agent 在多步骤中自主执行，无法获得人工干预。提示注入(prompt injection)攻击模糊了可信的用户意图与恶意输入之间的边界。近期关于沙箱逃逸的实证研究表明，这些担忧并非是假设性的，我们将在1.3节具体展开讨论。
+第二个目的是可复现性(reproducibility)。长程 Agent 任务以及衡量它们的评估基础设施需要能够将执行状态重置。Docker 容器或 microVM 可以被销毁并按需重建，而开发者的工作站则不行——这一特性使得基于沙箱的评估标准成为现实，如 SWE-bench。在训练阶段，当单个任务可能在并行轨迹中被重放数百次时，缺乏廉价的重置机制本身就是可扩展性的瓶颈。
+第三个目的是活跃性(liveness)，这是 Agent 时代最具特异性的目的。没有沙箱，Agent 希望执行的每一个潜在风险动作都必须向人类发出显式的权限提醒。这会产生两种失效模式：用户因挫败感而放弃使用 Agent，或者他们反射性地批准一切请求，从而破坏了风险提示的初衷。沙箱通过定义一个有界区域来打破这一僵局，在该区域内 Agent 被授权自由行动，将权限从”针对每个动作的询问”转变为”会话级别的配置”。Anthropic 报告称，为 Claude Code 引入沙箱机制后，权限提示减少了 84%，同时保持了安全性。
+2. Agent 沙箱的类别
+2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于工作负载和使用场景将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。
+2.1 通用托管沙箱
+通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：">
+<meta name="author" content="">
+<link rel="canonical" href="https://kkbill.github.io/posts/harness-engineering-02-execution/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.92a394705e940d8c58b5d19d52962fdd69c340635fa8f5cd6fd22d66f268a7ca.css" integrity="sha256-kqOUcF6UDYxYtdGdUpYv3WnDQGNfqPXNb9ItZvJop8o=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://kkbill.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://kkbill.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://kkbill.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://kkbill.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://kkbill.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://kkbill.github.io/posts/harness-engineering-02-execution/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-02-execution/">
+  <meta property="og:site_name" content="kkBill&#39;s Blog">
+  <meta property="og:title" content="Harness Engineering 02. Execution Environment">
+  <meta property="og:description" content="Harness Engineering 02. Execution Environment 1. 范围与概念 1.1 定义 Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。
+1.2 为何沙箱在 Agent 时代处于核心地位 Agent 时代的沙箱并非仅仅是从传统多租户代码执行继承而来的安全措施。它同时服务于三个不同的目的，而这三者的结合，将沙箱从运维细节提升为 Agent Harness 设计中的一等公民。
+第一个目的是安全(security)。Agent 沙箱面临的挑战超出了传统多租户代码执行的范畴。LLM 生成的代码在大规模下既不可审计也不可预测，这使得静态审查无法作为主要防御手段。Agent 在多步骤中自主执行，无法获得人工干预。提示注入(prompt injection)攻击模糊了可信的用户意图与恶意输入之间的边界。近期关于沙箱逃逸的实证研究表明，这些担忧并非是假设性的，我们将在1.3节具体展开讨论。
+第二个目的是可复现性(reproducibility)。长程 Agent 任务以及衡量它们的评估基础设施需要能够将执行状态重置。Docker 容器或 microVM 可以被销毁并按需重建，而开发者的工作站则不行——这一特性使得基于沙箱的评估标准成为现实，如 SWE-bench。在训练阶段，当单个任务可能在并行轨迹中被重放数百次时，缺乏廉价的重置机制本身就是可扩展性的瓶颈。
+第三个目的是活跃性(liveness)，这是 Agent 时代最具特异性的目的。没有沙箱，Agent 希望执行的每一个潜在风险动作都必须向人类发出显式的权限提醒。这会产生两种失效模式：用户因挫败感而放弃使用 Agent，或者他们反射性地批准一切请求，从而破坏了风险提示的初衷。沙箱通过定义一个有界区域来打破这一僵局，在该区域内 Agent 被授权自由行动，将权限从”针对每个动作的询问”转变为”会话级别的配置”。Anthropic 报告称，为 Claude Code 引入沙箱机制后，权限提示减少了 84%，同时保持了安全性。
+2. Agent 沙箱的类别 2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于工作负载和使用场景将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。
+2.1 通用托管沙箱 通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-05-31T21:11:17+08:00">
+    <meta property="article:modified_time" content="2026-05-31T21:11:17+08:00">
+    <meta property="article:tag" content="Agent">
+    <meta property="article:tag" content="LLM">
+    <meta property="article:tag" content="Harness Engineering">
+    <meta property="article:tag" content="Sandbox">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Harness Engineering 02. Execution Environment">
+  <meta name="twitter:description" content="Harness Engineering 02. Execution Environment 1. 范围与概念 1.1 定义 Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。
+1.2 为何沙箱在 Agent 时代处于核心地位 Agent 时代的沙箱并非仅仅是从传统多租户代码执行继承而来的安全措施。它同时服务于三个不同的目的，而这三者的结合，将沙箱从运维细节提升为 Agent Harness 设计中的一等公民。
+第一个目的是安全(security)。Agent 沙箱面临的挑战超出了传统多租户代码执行的范畴。LLM 生成的代码在大规模下既不可审计也不可预测，这使得静态审查无法作为主要防御手段。Agent 在多步骤中自主执行，无法获得人工干预。提示注入(prompt injection)攻击模糊了可信的用户意图与恶意输入之间的边界。近期关于沙箱逃逸的实证研究表明，这些担忧并非是假设性的，我们将在1.3节具体展开讨论。
+第二个目的是可复现性(reproducibility)。长程 Agent 任务以及衡量它们的评估基础设施需要能够将执行状态重置。Docker 容器或 microVM 可以被销毁并按需重建，而开发者的工作站则不行——这一特性使得基于沙箱的评估标准成为现实，如 SWE-bench。在训练阶段，当单个任务可能在并行轨迹中被重放数百次时，缺乏廉价的重置机制本身就是可扩展性的瓶颈。
+第三个目的是活跃性(liveness)，这是 Agent 时代最具特异性的目的。没有沙箱，Agent 希望执行的每一个潜在风险动作都必须向人类发出显式的权限提醒。这会产生两种失效模式：用户因挫败感而放弃使用 Agent，或者他们反射性地批准一切请求，从而破坏了风险提示的初衷。沙箱通过定义一个有界区域来打破这一僵局，在该区域内 Agent 被授权自由行动，将权限从”针对每个动作的询问”转变为”会话级别的配置”。Anthropic 报告称，为 Claude Code 引入沙箱机制后，权限提示减少了 84%，同时保持了安全性。
+2. Agent 沙箱的类别 2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于工作负载和使用场景将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。
+2.1 通用托管沙箱 通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://kkbill.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Harness Engineering 02. Execution Environment",
+      "item": "https://kkbill.github.io/posts/harness-engineering-02-execution/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Harness Engineering 02. Execution Environment",
+  "name": "Harness Engineering 02. Execution Environment",
+  "description": "Harness Engineering 02. Execution Environment 1. 范围与概念 1.1 定义 Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。\n1.2 为何沙箱在 Agent 时代处于核心地位 Agent 时代的沙箱并非仅仅是从传统多租户代码执行继承而来的安全措施。它同时服务于三个不同的目的，而这三者的结合，将沙箱从运维细节提升为 Agent Harness 设计中的一等公民。\n第一个目的是安全(security)。Agent 沙箱面临的挑战超出了传统多租户代码执行的范畴。LLM 生成的代码在大规模下既不可审计也不可预测，这使得静态审查无法作为主要防御手段。Agent 在多步骤中自主执行，无法获得人工干预。提示注入(prompt injection)攻击模糊了可信的用户意图与恶意输入之间的边界。近期关于沙箱逃逸的实证研究表明，这些担忧并非是假设性的，我们将在1.3节具体展开讨论。\n第二个目的是可复现性(reproducibility)。长程 Agent 任务以及衡量它们的评估基础设施需要能够将执行状态重置。Docker 容器或 microVM 可以被销毁并按需重建，而开发者的工作站则不行——这一特性使得基于沙箱的评估标准成为现实，如 SWE-bench。在训练阶段，当单个任务可能在并行轨迹中被重放数百次时，缺乏廉价的重置机制本身就是可扩展性的瓶颈。\n第三个目的是活跃性(liveness)，这是 Agent 时代最具特异性的目的。没有沙箱，Agent 希望执行的每一个潜在风险动作都必须向人类发出显式的权限提醒。这会产生两种失效模式：用户因挫败感而放弃使用 Agent，或者他们反射性地批准一切请求，从而破坏了风险提示的初衷。沙箱通过定义一个有界区域来打破这一僵局，在该区域内 Agent 被授权自由行动，将权限从”针对每个动作的询问”转变为”会话级别的配置”。Anthropic 报告称，为 Claude Code 引入沙箱机制后，权限提示减少了 84%，同时保持了安全性。\n2. Agent 沙箱的类别 2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于工作负载和使用场景将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。\n2.1 通用托管沙箱 通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：\n",
+  "keywords": [
+    "Agent", "LLM", "Harness Engineering", "Sandbox"
+  ],
+  "articleBody": "Harness Engineering 02. Execution Environment 1. 范围与概念 1.1 定义 Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。\n1.2 为何沙箱在 Agent 时代处于核心地位 Agent 时代的沙箱并非仅仅是从传统多租户代码执行继承而来的安全措施。它同时服务于三个不同的目的，而这三者的结合，将沙箱从运维细节提升为 Agent Harness 设计中的一等公民。\n第一个目的是安全(security)。Agent 沙箱面临的挑战超出了传统多租户代码执行的范畴。LLM 生成的代码在大规模下既不可审计也不可预测，这使得静态审查无法作为主要防御手段。Agent 在多步骤中自主执行，无法获得人工干预。提示注入(prompt injection)攻击模糊了可信的用户意图与恶意输入之间的边界。近期关于沙箱逃逸的实证研究表明，这些担忧并非是假设性的，我们将在1.3节具体展开讨论。\n第二个目的是可复现性(reproducibility)。长程 Agent 任务以及衡量它们的评估基础设施需要能够将执行状态重置。Docker 容器或 microVM 可以被销毁并按需重建，而开发者的工作站则不行——这一特性使得基于沙箱的评估标准成为现实，如 SWE-bench。在训练阶段，当单个任务可能在并行轨迹中被重放数百次时，缺乏廉价的重置机制本身就是可扩展性的瓶颈。\n第三个目的是活跃性(liveness)，这是 Agent 时代最具特异性的目的。没有沙箱，Agent 希望执行的每一个潜在风险动作都必须向人类发出显式的权限提醒。这会产生两种失效模式：用户因挫败感而放弃使用 Agent，或者他们反射性地批准一切请求，从而破坏了风险提示的初衷。沙箱通过定义一个有界区域来打破这一僵局，在该区域内 Agent 被授权自由行动，将权限从”针对每个动作的询问”转变为”会话级别的配置”。Anthropic 报告称，为 Claude Code 引入沙箱机制后，权限提示减少了 84%，同时保持了安全性。\n2. Agent 沙箱的类别 2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于工作负载和使用场景将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。\n2.1 通用托管沙箱 通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：\nDaytona：Daytona is a secure and elastic infrastructure runtime for AI-generated code execution and agent workflows. Our open-source platform provides sandboxes, full composable computers with complete isolation, a dedicated kernel, filesystem, network stack, and allocated vCPU, RAM, and disk. E2B：基于 Firecracker microVMs 构建的智能体沙箱 Modal：使用 gVisor 的 Python 平台，具备大规模自动扩展能力 Northflank：同时支持 Kata Containers、Firecracker 和 gVisor 的平台 OpenSandbox：阿里巴巴的开源通用沙箱 Docker Sandboxes：Docker 官方基于微虚拟机的沙箱产品，发布于 2025 年 2.2 Computer-Use Agent 基础设施 Computer-use agent 基础设施代表了一种独特的执行模型：Agent 通过模拟的鼠标、键盘和屏幕观察等方式与图形界面交互，而非通过 API 或 shell 命令。代表性系统包括 Anthropic 的 Computer Use Anthropic (2024b)，使 Claude 能够直接操作桌面环境；开源的 computer-use agent 基础设施 Cua；以及 OSWorld 提供的基于 VM 的环境，它同时充当评估基础设施和 computer-use 沙箱的参考实现。\n这些系统在沙箱内打包了一个完整或接近完整的桌面环境，并向 Agent 暴露像素坐标和按键动作。这种方式的动作空间远大于基于 API 的方式，可靠性依赖于 visual grounding（视觉定位，即基于视觉输入确定操作目标的能力），完整的操作系统攻击面要求更强的隔离（通常为 microVM 或完整 VM）。与前一节的通用沙箱相比，computer-use 沙箱以牺牲密度和启动延迟换取保真度：完整的桌面环境比 headless shell sandbox（注：即无图形界面的命令行环境）更重、更难多路复用，但它是智能体能够操作那些不暴露 API 的应用程序的唯一执行模型。\n注：因为 Computer-Use Agent 在运行时接触的是一整个复杂的操作系统，这导致了极其庞大的潜在安全漏洞风险（即，Attack Surface 攻击面），所以我们不能仅依靠共享内核的容器，而必须使用拥有独立内核的虚拟机（如 microVM 或 VM）来提供更高级别的物理隔离，以确保即便沙箱内部失控，宿主机依然安全。\n这种设计虽然牺牲了启动速度（虚拟机比容器启动慢）和系统密度（占用更多内存），但对于需要直接操作桌面的场景来说，这是为了安全必须付出的代价。\n2.3 代码专用沙箱 代码专用沙箱是轻量级环境，针对代码生成、评估和数据分析进行了优化，而非通用 shell 访问。代表性系统包括：\nJudge0：最初为判题设计的代码评估沙箱，被广泛复用为编码智能体评估管道的组件 OpenAI Code Interpreter：支撑 ChatGPT 高级数据分析的规模化沙箱化 Python 环境 sandboxed.sh：面向编码智能体的 shell 沙箱 langchain-sandbox：使用编译为 WebAssembly 并在 Deno 运行时中执行的 Pyodide，在无需容器的情况下本地沙箱化智能体生成的 Python——NVIDIA 也倡导这一设计用于客户端智能工作流。 与通用沙箱不同，这些系统预装编译器和解释器，这一设计选择以牺牲工作负载通用性为代价，换取启动速度、评估吞吐量和更简单的威胁模型。一个值得注意的趋势是从基于容器的代码沙箱向基于 WebAssembly 的沙箱迁移：WebAssembly 提供基于能力的安全（注：capability-based security，一种通过细粒度权限控制实现安全的模型）、确定性执行和微秒级实例化，代价是受限制的 Python 标准库和较少的本地扩展支持。\n2.4 框架集成运行时 框架集成运行时是捆绑在更广泛的 Agent 框架内部的执行环境，而非作为独立的沙箱产品暴露。它们与框架的编排循环、工具注册表和提示词一起发布，若不采用其外围框架则无法独立使用。代表性系统包括：\nOpenHands 运行时：将 bash、IPython、Chromium 浏览器和 API 服务器集成到单一镜像中的 Docker 沙箱化环境； agent-infra sandbox：显式的一体化设计，将浏览器、shell、文件系统、MCP 和 VSCode 打包到一个环境中； smolagents：提供本地、Docker、E2B、Modal 和 WebAssembly 执行的框架内实现； 该类别的核心在于打包（bundle）与组合（compose）之间的权衡：框架集成运行时优先提供开箱即用的能力覆盖，代价是更大的镜像、更慢的启动速度以及与单一框架抽象的紧耦合。相比之下，通用沙箱采取相反的方法——通过外部抽象组合最小化环境。组合方法是否会在长期内取代打包运行时，取决于 MCP 等标准是否能降低运行时组装能力的代价，相对于构建时组装而言。\n2.5 浏览器评估环境 浏览器评估环境兼具沙箱和评估基础设施的双重角色。代表性系统包括：WebArena，一组自托管的真实 Web 应用集群，配以基于 Playwright 的交互；VisualWebArena，在 WebArena 基础上扩展了多模态视觉定位任务；BrowserGym 与 WorkArena，为基于浏览器的 Agent 执行和基准测试提供标准化的 gym 风格接口。\n这些系统提供隔离的 Web 执行环境（沙箱角色），同时提供可复现的任务定义和自动评估（评估角色）。这种双重功能将它们与前面提到的 computer-use 类别区分开来——后者在桌面而非浏览器层面操作。\n2.6 OS 级权限沙箱 OS 级权限沙箱使用操作系统原语（Linux 上的 bubblewrap、macOS 上的 Seatbelt，或用于系统调用过滤的 seccomp-bpf）实现细粒度的文件系统和网络隔离，而非容器、VM 或用户空间内核。它们比容器沙箱轻量得多，同时提供目录和域访问控制。代表性系统包括：\nAnthropic开源的sandbox-runtime：通过 bubblewrap 和本地 HTTP/SOCKS5 代理强制执行的文件系统和网络允许列表来包装任意命令。 Claude Code Sandbox：使用该运行时来限制 bash 工具的文件系统和网络访问的边界。 IsolateGPT：研究系统，应用 seccomp 和 setrlimit 来强制执行跨工具调用 LLM 的执行隔离。 ",
+  "wordCount" : "289",
+  "inLanguage": "en",
+  "datePublished": "2026-05-31T21:11:17+08:00",
+  "dateModified": "2026-05-31T21:11:17+08:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://kkbill.github.io/posts/harness-engineering-02-execution/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "kkBill's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://kkbill.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://kkbill.github.io/" accesskey="h" title="kkBill&#39;s Blog (Alt + H)">kkBill&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://kkbill.github.io/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/archives/" title="Archives">
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Harness Engineering 02. Execution Environment
+    </h1>
+    <div class="post-meta"><span title='2026-05-31 21:11:17 +0800 CST'>May 31, 2026</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#harness-engineering-02-execution-environment" aria-label="Harness Engineering 02. Execution Environment">Harness Engineering 02. Execution Environment</a><ul>
+                        
+                <li>
+                    <a href="#1-%e8%8c%83%e5%9b%b4%e4%b8%8e%e6%a6%82%e5%bf%b5" aria-label="1. 范围与概念">1. 范围与概念</a><ul>
+                        
+                <li>
+                    <a href="#11-%e5%ae%9a%e4%b9%89" aria-label="1.1 定义">1.1 定义</a></li>
+                <li>
+                    <a href="#12-%e4%b8%ba%e4%bd%95%e6%b2%99%e7%ae%b1%e5%9c%a8-agent-%e6%97%b6%e4%bb%a3%e5%a4%84%e4%ba%8e%e6%a0%b8%e5%bf%83%e5%9c%b0%e4%bd%8d" aria-label="1.2 为何沙箱在 Agent 时代处于核心地位">1.2 为何沙箱在 Agent 时代处于核心地位</a></li></ul>
+                </li>
+                <li>
+                    <a href="#2-agent-%e6%b2%99%e7%ae%b1%e7%9a%84%e7%b1%bb%e5%88%ab" aria-label="2. Agent 沙箱的类别">2. Agent 沙箱的类别</a><ul>
+                        
+                <li>
+                    <a href="#21-%e9%80%9a%e7%94%a8%e6%89%98%e7%ae%a1%e6%b2%99%e7%ae%b1" aria-label="2.1 通用托管沙箱">2.1 通用托管沙箱</a></li>
+                <li>
+                    <a href="#22-computer-use-agent-%e5%9f%ba%e7%a1%80%e8%ae%be%e6%96%bd" aria-label="2.2 Computer-Use Agent 基础设施">2.2 Computer-Use Agent 基础设施</a></li>
+                <li>
+                    <a href="#23-%e4%bb%a3%e7%a0%81%e4%b8%93%e7%94%a8%e6%b2%99%e7%ae%b1" aria-label="2.3 代码专用沙箱">2.3 代码专用沙箱</a></li>
+                <li>
+                    <a href="#24-%e6%a1%86%e6%9e%b6%e9%9b%86%e6%88%90%e8%bf%90%e8%a1%8c%e6%97%b6" aria-label="2.4 框架集成运行时">2.4 框架集成运行时</a></li>
+                <li>
+                    <a href="#25-%e6%b5%8f%e8%a7%88%e5%99%a8%e8%af%84%e4%bc%b0%e7%8e%af%e5%a2%83" aria-label="2.5 浏览器评估环境">2.5 浏览器评估环境</a></li>
+                <li>
+                    <a href="#26-os-%e7%ba%a7%e6%9d%83%e9%99%90%e6%b2%99%e7%ae%b1" aria-label="2.6 OS 级权限沙箱">2.6 OS 级权限沙箱</a></li>
+                <li>
+                    <a href="#27-%e6%b2%99%e7%ae%b1%e6%8a%bd%e8%b1%a1%e5%b1%82" aria-label="2.7 沙箱抽象层">2.7 沙箱抽象层</a></li></ul>
+                </li>
+                <li>
+                    <a href="#3-%e5%a8%81%e8%83%81%e6%a8%a1%e5%9e%8b%e4%b8%8e%e6%b2%99%e7%ae%b1%e9%80%83%e9%80%b8" aria-label="3. 威胁模型与沙箱逃逸">3. 威胁模型与沙箱逃逸</a></li>
+                <li>
+                    <a href="#4-%e9%83%a8%e7%bd%b2%e6%a8%a1%e5%bc%8f" aria-label="4. 部署模式">4. 部署模式</a></li>
+                <li>
+                    <a href="#5-%e6%80%bb%e7%bb%93" aria-label="5. 总结">5. 总结</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="harness-engineering-02-execution-environment">Harness Engineering 02. Execution Environment<a hidden class="anchor" aria-hidden="true" href="#harness-engineering-02-execution-environment">#</a></h1>
+<p><img alt="image.png" loading="lazy" src="/posts/harness-engineering-02-execution/images/image00.png"></p>
+<h2 id="1-范围与概念">1. 范围与概念<a hidden class="anchor" aria-hidden="true" href="#1-范围与概念">#</a></h2>
+<h3 id="11-定义">1.1 定义<a hidden class="anchor" aria-hidden="true" href="#11-定义">#</a></h3>
+<p>Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。</p>
+<h3 id="12-为何沙箱在-agent-时代处于核心地位">1.2 为何沙箱在 Agent 时代处于核心地位<a hidden class="anchor" aria-hidden="true" href="#12-为何沙箱在-agent-时代处于核心地位">#</a></h3>
+<p>Agent 时代的沙箱并非仅仅是从传统多租户代码执行继承而来的安全措施。它同时服务于三个不同的目的，而这三者的结合，将沙箱从运维细节提升为 Agent Harness 设计中的一等公民。</p>
+<p>第一个目的是<strong>安全(security)</strong>。Agent 沙箱面临的挑战超出了传统多租户代码执行的范畴。LLM 生成的代码在大规模下既不可审计也不可预测，这使得静态审查无法作为主要防御手段。Agent 在多步骤中自主执行，无法获得人工干预。提示注入(prompt injection)攻击模糊了可信的用户意图与恶意输入之间的边界。近期关于沙箱逃逸的实证研究表明，这些担忧并非是假设性的，我们将在1.3节具体展开讨论。</p>
+<p>第二个目的是<strong>可复现性(reproducibility)</strong>。长程 Agent 任务以及衡量它们的评估基础设施需要能够将执行状态重置。Docker 容器或 microVM 可以被销毁并按需重建，而开发者的工作站则不行——这一特性使得基于沙箱的评估标准成为现实，如 <a href="https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf">SWE-bench</a>。在训练阶段，当单个任务可能在并行轨迹中被重放数百次时，<strong>缺乏廉价的重置机制本身就是可扩展性的瓶颈</strong>。</p>
+<p>第三个目的是<strong>活跃性(liveness)</strong>，这是 Agent 时代最具特异性的目的。没有沙箱，Agent 希望执行的每一个潜在风险动作都必须向人类发出显式的权限提醒。这会产生两种失效模式：<strong>用户因挫败感而放弃使用 Agent，或者他们反射性地批准一切请求，从而破坏了风险提示的初衷</strong>。沙箱通过定义一个有界区域来打破这一僵局，在该区域内 Agent 被授权自由行动，将权限从”针对每个动作的询问”转变为”会话级别的配置”。<a href="https://www.anthropic.com/engineering/claude-code-sandboxing">Anthropic 报告</a>称，为 Claude Code 引入沙箱机制后，权限提示减少了 84%，同时保持了安全性。</p>
+<h2 id="2-agent-沙箱的类别">2. Agent 沙箱的类别<a hidden class="anchor" aria-hidden="true" href="#2-agent-沙箱的类别">#</a></h2>
+<p>2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于<strong>工作负载</strong>和<strong>使用场景</strong>将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。</p>
+<h3 id="21-通用托管沙箱">2.1 通用托管沙箱<a hidden class="anchor" aria-hidden="true" href="#21-通用托管沙箱">#</a></h3>
+<p>通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：</p>
+<ul>
+<li><a href="https://github.com/daytonaio/daytona"><strong>Daytona</strong></a>：Daytona is a secure and elastic infrastructure runtime for AI-generated code execution and agent workflows. Our open-source platform provides <a href="https://www.daytona.io/docs/sandboxes/">sandboxes</a>, full composable computers with complete isolation, a dedicated kernel, filesystem, network stack, and allocated vCPU, RAM, and disk.</li>
+<li><a href="https://github.com/e2b-dev/E2B"><strong>E2B</strong></a>：基于 Firecracker microVMs 构建的智能体沙箱</li>
+<li><a href="https://modal.com"><strong>Modal</strong></a>：使用 gVisor 的 Python 平台，具备大规模自动扩展能力</li>
+<li><a href="https://northflank.com/"><strong>Northflank</strong></a>：同时支持 Kata Containers、Firecracker 和 gVisor 的平台</li>
+<li><a href="https://github.com/alibaba/OpenSandbox"><strong>OpenSandbox</strong></a>：阿里巴巴的开源通用沙箱</li>
+<li><a href="https://www.docker.com/blog/docker-sandboxes-a-new-approach-for-coding-agent-safety/"><strong>Docker Sandboxes</strong></a>：Docker 官方基于微虚拟机的沙箱产品，发布于 2025 年</li>
+</ul>
+<h3 id="22-computer-use-agent-基础设施">2.2 Computer-Use Agent 基础设施<a hidden class="anchor" aria-hidden="true" href="#22-computer-use-agent-基础设施">#</a></h3>
+<p>Computer-use agent 基础设施代表了一种独特的执行模型：<strong>Agent 通过模拟的鼠标、键盘和屏幕观察等方式与图形界面交互，而非通过 API 或 shell 命令</strong>。代表性系统包括 Anthropic 的 <a href="https://www.anthropic.com/news/3-5-models-and-computer-use">Computer Use Anthropic (2024b)</a>，使 Claude 能够直接操作桌面环境；开源的 computer-use agent 基础设施 <a href="https://github.com/trycua/cua">Cua</a>；以及 <a href="https://arxiv.org/pdf/2404.07972">OSWorld</a> 提供的基于 VM 的环境，它同时充当评估基础设施和 computer-use 沙箱的参考实现。</p>
+<p>这些系统在沙箱内打包了一个完整或接近完整的桌面环境，并向 Agent 暴露像素坐标和按键动作。这种方式的动作空间远大于基于 API 的方式，可靠性依赖于 visual grounding（视觉定位，即基于视觉输入确定操作目标的能力），完整的操作系统攻击面要求更强的隔离（通常为 microVM 或完整 VM）。与前一节的通用沙箱相比，computer-use 沙箱以牺牲密度和启动延迟换取保真度：<strong>完整的桌面环境比 headless shell sandbox（注：即无图形界面的命令行环境）更重、更难多路复用，但它是智能体能够操作那些不暴露 API 的应用程序的唯一执行模型</strong>。</p>
+<blockquote>
+<p>注：因为 Computer-Use Agent  在运行时接触的是一整个复杂的操作系统，这导致了极其庞大的潜在安全漏洞风险（即，Attack Surface 攻击面），所以我们不能仅依靠共享内核的容器，而必须使用拥有独立内核的虚拟机（如 microVM 或 VM）来提供更高级别的物理隔离，以确保即便沙箱内部失控，宿主机依然安全。</p>
+<p>这种设计虽然牺牲了启动速度（虚拟机比容器启动慢）和系统密度（占用更多内存），但对于需要直接操作桌面的场景来说，这是为了安全必须付出的代价。</p>
+</blockquote>
+<h3 id="23-代码专用沙箱">2.3 代码专用沙箱<a hidden class="anchor" aria-hidden="true" href="#23-代码专用沙箱">#</a></h3>
+<p>代码专用沙箱是轻量级环境，针对代码生成、评估和数据分析进行了优化，而非通用 shell 访问。代表性系统包括：</p>
+<ul>
+<li><strong>Judge0</strong>：最初为判题设计的代码评估沙箱，被广泛复用为编码智能体评估管道的组件</li>
+<li><strong>OpenAI Code Interpreter</strong>：支撑 ChatGPT 高级数据分析的规模化沙箱化 Python 环境</li>
+<li><strong>sandboxed.sh</strong>：面向编码智能体的 shell 沙箱</li>
+<li><strong>langchain-sandbox</strong>：使用编译为 WebAssembly 并在 Deno 运行时中执行的 Pyodide，在无需容器的情况下本地沙箱化智能体生成的 Python——NVIDIA 也倡导这一设计用于客户端智能工作流。</li>
+</ul>
+<p><strong>与通用沙箱不同，这些系统预装编译器和解释器，这一设计选择以牺牲工作负载通用性为代价，换取启动速度、评估吞吐量和更简单的威胁模型</strong>。一个值得注意的趋势是从基于容器的代码沙箱向基于 WebAssembly 的沙箱迁移：WebAssembly 提供基于能力的安全（注：capability-based security，一种通过细粒度权限控制实现安全的模型）、确定性执行和微秒级实例化，代价是受限制的 Python 标准库和较少的本地扩展支持。</p>
+<h3 id="24-框架集成运行时">2.4 框架集成运行时<a hidden class="anchor" aria-hidden="true" href="#24-框架集成运行时">#</a></h3>
+<p>框架集成运行时是捆绑在更广泛的 Agent 框架内部的执行环境，而非作为独立的沙箱产品暴露。它们与框架的编排循环、工具注册表和提示词一起发布，若不采用其外围框架则无法独立使用。代表性系统包括：</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2407.16741"><strong>OpenHands</strong></a> 运行时：将 bash、IPython、Chromium 浏览器和 API 服务器集成到单一镜像中的 Docker 沙箱化环境；</li>
+<li><a href="https://github.com/agent-infra/sandbox"><strong>agent-infra sandbox</strong></a>：显式的一体化设计，将浏览器、shell、文件系统、MCP 和 VSCode 打包到一个环境中；</li>
+<li><a href="https://github.com/huggingface/smolagents"><strong>smolagents</strong></a>：提供本地、Docker、E2B、Modal 和 WebAssembly 执行的框架内实现；</li>
+</ul>
+<p>该类别的核心在于<strong>打包</strong>（bundle）与<strong>组合</strong>（compose）之间的权衡：框架集成运行时优先提供开箱即用的能力覆盖，代价是更大的镜像、更慢的启动速度以及与单一框架抽象的紧耦合。相比之下，通用沙箱采取相反的方法——通过外部抽象组合最小化环境。组合方法是否会在长期内取代打包运行时，取决于 MCP 等标准是否能降低运行时组装能力的代价，相对于构建时组装而言。</p>
+<h3 id="25-浏览器评估环境">2.5 浏览器评估环境<a hidden class="anchor" aria-hidden="true" href="#25-浏览器评估环境">#</a></h3>
+<p>浏览器评估环境兼具沙箱和评估基础设施的双重角色。代表性系统包括：<a href="https://arxiv.org/pdf/2307.13854">WebArena</a>，一组自托管的真实 Web 应用集群，配以基于 Playwright 的交互；<a href="https://arxiv.org/pdf/2401.13649">VisualWebArena</a>，在 WebArena 基础上扩展了多模态视觉定位任务；BrowserGym 与 WorkArena，为基于浏览器的 Agent 执行和基准测试提供标准化的 gym 风格接口。</p>
+<p>这些系统提供隔离的 Web 执行环境（沙箱角色），同时提供可复现的任务定义和自动评估（评估角色）。这种双重功能将它们与前面提到的 computer-use 类别区分开来——后者在桌面而非浏览器层面操作。</p>
+<h3 id="26-os-级权限沙箱">2.6 OS 级权限沙箱<a hidden class="anchor" aria-hidden="true" href="#26-os-级权限沙箱">#</a></h3>
+<p>OS 级权限沙箱使用操作系统原语（Linux 上的 bubblewrap、macOS 上的 Seatbelt，或用于系统调用过滤的 seccomp-bpf）实现细粒度的文件系统和网络隔离，而非容器、VM 或用户空间内核。它们比容器沙箱轻量得多，同时提供目录和域访问控制。代表性系统包括：</p>
+<ul>
+<li>Anthropic开源的<a href="https://github.com/anthropic-experimental/sandbox-runtime">sandbox-runtime</a>：通过 bubblewrap 和本地 HTTP/SOCKS5 代理强制执行的文件系统和网络允许列表来包装任意命令。</li>
+<li><a href="https://www.anthropic.com/engineering/claude-code-sandboxing">Claude Code Sandbox</a>：使用该运行时来限制 bash 工具的文件系统和网络访问的边界。</li>
+<li><a href="https://arxiv.org/abs/2403.04960">IsolateGPT</a>：研究系统，应用 seccomp 和 setrlimit 来强制执行跨工具调用 LLM 的执行隔离。</li>
+</ul>
+<p><img alt="<a href=\"https://www.anthropic.com/engineering/claude-code-sandboxing\">https://www.anthropic.com/engineering/claude-code-sandboxing</a>" loading="lazy" src="/posts/harness-engineering-02-execution/images/image01.png"></p>
+<p>在Claude Code中运行 <code>/sandbox</code> 来开始体验或配置该功能：</p>
+<p><img alt="image.png" loading="lazy" src="/posts/harness-engineering-02-execution/images/image02.png"></p>
+<p>该类别的设计哲学是<strong>权限(permission)<strong>而非</strong>分区(partition)</strong>，其目标不是为每个会话提供全新的 OS 镜像，而是为 Agent 提供一个缩小版的主机视图，使得被提示注入或产生幻觉的命令无法修改敏感文件或外泄数据。<a href="https://www.anthropic.com/engineering/claude-code-sandboxing">Anthropic 报告</a>称，此类边界将 Claude Code 中的权限提示减少了 84%，同时保持了安全性。由于主机内核是共享的，OS 级权限沙箱相对于基于 microVM 的托管沙箱提供更弱的对抗性代码隔离；它们适用于威胁模型为提示注入（而非完全对抗性代码）的场景。</p>
+<h3 id="27-沙箱抽象层">2.7 沙箱抽象层<a hidden class="anchor" aria-hidden="true" href="#27-沙箱抽象层">#</a></h3>
+<p>沙箱抽象层本身不是沙箱，而是将多个沙箱后端统一在单一 API 背后的接口，使 Harness 能够在不重写 Agent 代码的情况下切换执行基底。代表性系统包括：</p>
+<ul>
+<li><strong>SWE-ReX</strong>：SWE-agent 团队开发的运行时接口，将 Docker、AWS Fargate、Modal 和 Daytona 统一为可互换的后端。</li>
+<li><strong>smolagents 的执行器接口</strong>：将local、e2b、modal、docker、blaxel 和 wasm 暴露为单一参数化的 executor_type。</li>
+<li><strong>Kubernetes SIG Apps 下的 Agent Sandbox 项目</strong>：引入 Sandbox CRD 和控制器，通过声明式接口暴露。</li>
+</ul>
+<p>该类别的出现反映了一种日益成熟的认识：执行基础设施应当是可替换的。将特定沙箱 API 硬编码的 Harness 会将其编排逻辑与单一厂商的产品耦合，抽象层则将”Agent 运行什么”与”Agent 在哪里运行”解耦。</p>
+<h2 id="3-威胁模型与沙箱逃逸">3. 威胁模型与沙箱逃逸<a hidden class="anchor" aria-hidden="true" href="#3-威胁模型与沙箱逃逸">#</a></h2>
+<p>不同于传统的代码执行安全风险，智能体时代的威胁模型包含以下三个特有维度：</p>
+<ul>
+<li><strong>提示词注入攻击 (Prompt Injection Attacks)</strong>： 外部输入（如检索到的网页、工具返回的结果或文件内容）可能通过注入指令“劫持”智能体的行为，使其发起恶意的沙箱攻击操作。</li>
+<li><strong>目标不一致 (Goal Misalignment)</strong>： 智能体本身可能会为了实现某个任务目标，将“逃逸出沙箱”作为一种手段或子目标来执行，从而产生不可控的行为。</li>
+<li><strong>组合放大效应 (Compositional Amplification)</strong>： 当智能体拥有多个工具的访问权限时，单一沙箱的弱点可能会通过这些集成能力发生级联反应，放大安全漏洞的影响。</li>
+</ul>
+<p>论文指出，沙箱逃逸并非理论假设，而是已经由实验证实的现实风险。根据 <em>Sandbox-EscapeBench</em> 的评估，最先进的大模型在面对 Docker 容器环境时，具有 <strong>15% 到 35% 的成功逃逸率</strong>，具体取决于容器的配置。逃逸手段涵盖了配置错误、权限分配失误、内核缺陷以及运行时或编排层的弱点。</p>
+<p>目前针对沙箱逃逸的防御仍处于早期阶段，主要包括以下研究方向：</p>
+<ul>
+<li><strong>执行隔离架构</strong>： 如 <em>IsolateGPT</em>，旨在通过隔离应用间的执行流来防止跨应用的数据泄露。</li>
+<li><strong>事务化沙箱 (Transactional Sandboxing)</strong>： 提供基于回滚（Rollback）的保护，在拦截到危险指令时撤销操作。</li>
+<li><strong>极简沙箱环境</strong>： <em>LLM-in-Sandbox</em> 主张使用功能极小化的沙箱，以减少攻击面并降低智能体的复杂性。</li>
+</ul>
+<p>综合来看，这些结果暴露了攻防进展之间的差距。攻击性评估已经有具体且可复现的基准，而防御性工作仍处于碎片化阶段，不同的原型系统在威胁模型、评估协议和基准假设上各不相同。建立一个能够系统性应对提示词注入、目标不一致和组合放大效应的<strong>智能体原生运行时安全框架</strong>，是目前 Harness 工程中一个关键的开放研究方向。</p>
+<h2 id="4-部署模式">4. 部署模式<a hidden class="anchor" aria-hidden="true" href="#4-部署模式">#</a></h2>
+<p>智能体沙箱基础设施已从原始的自托管 Docker 模式发展为多种部署模式。在当前实践中，三种模式共存：</p>
+<ul>
+<li><strong>自托管模式</strong>下，开发者直接管理沙箱基础设施，这是 OpenHands 和 SWE-agent 的默认模式。</li>
+<li><strong>云模式</strong>下，sandbox-as-a-service 提供商处理基础设施，如 E2B、Modal 和 Daytona Cloud。</li>
+<li><strong>混合或BYOC(Bring-Your-Own-Cloud)模式</strong>下，Agent 逻辑与沙箱执行跨环境解耦；例子包括 OpenHands SDK 的 Local 和 Remote Workspace 抽象，以及 E2B 和 Northflank 的 BYOC 产品。</li>
+</ul>
+<p>一方面，从业者主要<strong>从延迟、安全和可扩展性三个方面进行权衡</strong>。自托管沙箱提供最低延迟和最紧密的迭代循环，但承担全部运维负担；云沙箱则以弹性扩缩容和托管安全为代价，产生网络往返开销；混合模式试图在将敏感数据保留在本地的同时，将执行能力外包。另一方面，<strong>数据驻留、合规性和可审计性等组织约束推动部署走向混合架构</strong>。</p>
+<h2 id="5-总结">5. 总结<a hidden class="anchor" aria-hidden="true" href="#5-总结">#</a></h2>
+<p>执行环境是 Agent Harness 的物理基底：它们提供安全边界、用于可复现评估和训练的重置机制，以及长程任务下无需逐条人工批准即可行动的有界区域。</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://kkbill.github.io/tags/agent/">Agent</a></li>
+      <li><a href="https://kkbill.github.io/tags/llm/">LLM</a></li>
+      <li><a href="https://kkbill.github.io/tags/harness-engineering/">Harness Engineering</a></li>
+      <li><a href="https://kkbill.github.io/tags/sandbox/">Sandbox</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://kkbill.github.io/posts/harness-engineering-01-overview/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Harness Engineering 01. Overview</span>
+  </a>
+  <a class="next" href="https://kkbill.github.io/posts/harness-engineering-03-tool/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Harness Engineering 03. Tool</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://kkbill.github.io/">kkBill&#39;s Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

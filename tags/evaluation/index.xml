@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Evaluation on kkBill&#39;s Blog</title>
+    <link>https://kkbill.github.io/tags/evaluation/</link>
+    <description>Recent content in Evaluation on kkBill&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 31 May 2026 21:15:58 +0800</lastBuildDate>
+    <atom:link href="https://kkbill.github.io/tags/evaluation/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Harness Engineering 07. Verification and Evaluation</title>
+      <link>https://kkbill.github.io/posts/harness-engineering-07-evaluation/</link>
+      <pubDate>Sun, 31 May 2026 21:15:58 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/harness-engineering-07-evaluation/</guid>
+      <description>&lt;h1 id=&#34;harness-engineering-07-verification-and-evaluation&#34;&gt;Harness Engineering 07. Verification and Evaluation&lt;/h1&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-07-evaluation/images/image00.png&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-harness-evaluation-as-a-task-to-feedback-lifecycle&#34;&gt;1. Harness Evaluation as a Task-to-Feedback Lifecycle&lt;/h2&gt;
+&lt;p&gt;首先，我们需要打破传统评估的固有认知，即&lt;strong&gt;评估分数应当被视为“Model-Harness 对”的属性&lt;/strong&gt;，而不仅仅是模型本身的能力体现。这对应于本文贯穿始终的“绑定约束理论”，即任务执行的可靠性很大程度上取决于模型之外的 Harness 基础设施（Agent = Model + Harness）。因此，这要求在评估协议中，要么保持 Harness 不变，对比模型；要么保持模型不变，将不同的 Harness 配置作为显式的实验因子进行测试。&lt;/p&gt;
+&lt;p&gt;此外，Harness 评估与传统 LLM 评估也存在根本差异。&lt;strong&gt;传统 LLM 评估&lt;/strong&gt;通常针对固定的输入，对输出进行评分（如 &lt;a href=&#34;https://arxiv.org/abs/2009.03300&#34;&gt;MMLU&lt;/a&gt;）；&lt;strong&gt;Harness 评估&lt;/strong&gt;衡量的则是一个执行集(Execution Episode，即 Agent 与环境交互的一个完整周期)——任务被锚定于某个环境中，智能体在其中与工具、状态进行多轮交互，评估者需要判断&lt;strong&gt;最终结果&lt;/strong&gt;以及&lt;strong&gt;达成结果的路径（轨迹）&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;为此，作者提出了一个核心概念，&lt;strong&gt;将 Harness 评估视为一个“从任务到反馈的生命周期(Task-to-Feedback Lifecycle)”&lt;/strong&gt;。下图展示了 task-to-feedback lifecycle 的五个阶段。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-07-evaluation/images/image01.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;作者引入生命周期视角的一个重要动机在于，评估基础设施的噪声可能被误当作模型的失败。 在复杂的智能体运行中，失败的原因可能多种多样，如工具损坏、上下文过时、沙箱未重置、测试用例不稳定或评估器本身出现偏差。 因此，评估不能仅仅给出一个最终分数，而必须将 Agent 行为转化为&lt;strong&gt;结构化的判断、失败归因和回归反馈&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;task-to-feedback lifecycle 的五个阶段涵盖了从任务定义到系统改进的全过程，具体包括：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;阶段 1：任务与基准锚定 (Task and Benchmark Grounding)&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;核心问题：评估什么？&lt;/li&gt;
+&lt;li&gt;内容：定义环境状态、可用工具、允许的操作、约束条件和成功准则。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;阶段 2：执行前就绪验证 (Pre-execution Readiness Validation)&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;核心问题：环境设置准备好了吗？&lt;/li&gt;
+&lt;li&gt;内容：在运行前检查沙箱、依赖项、工具、权限策略和预算是否正确初始化，确保环境的公平性和可重复性。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;阶段 3：受控执行与轨迹捕获 (Controlled Execution and Trace Capture)&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;核心问题：发生了什么？&lt;/li&gt;
+&lt;li&gt;内容：在可重复的条件下运行智能体，记录模型输出、工具调用、状态变化、错误、成本和延迟，将运行过程转化为可诊断的证据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;阶段 4：多级判断与失败归因 (Multi-level Judgement and Failure Attribution)&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;核心问题：为什么成功或失败？&lt;/li&gt;
+&lt;li&gt;内容：不仅看结果是否正确（Outcome），还看路径是否合规高效（Trajectory），并将失败具体归因到模型、工具接口或上下文管理等具体的 Harness 组件上。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;阶段 5：持续回归与部署反馈 (Continuous Regression and Deployment Feedback)&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;核心问题：如何改进？&lt;/li&gt;
+&lt;li&gt;内容：将评估诊断结果转化为回归测试和工程反馈，驱动下一轮的 Harness 迭代和优化。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;2-stage-1---task-and-benchmark-grounding&#34;&gt;2. Stage 1 - Task and Benchmark Grounding&lt;/h2&gt;
+&lt;p&gt;阶段 1 的核心任务是回答“&lt;strong&gt;到底在评估什么&lt;/strong&gt;”这一基本问题。在 Harness Engineering 语境下，一个任务不仅仅是一段提示词，而必须包含以下要素：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
