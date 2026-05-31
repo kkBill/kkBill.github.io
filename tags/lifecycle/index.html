@@ -153,7 +153,7 @@
     </h2>
   </header>
   <div class="entry-content">
-    <p>Harness Engineering 05. Lifecycle 生命周期与编排关注 Agent 系统如何在多次模型调用、工具调用、失败、修订和交接中推进任务。这一层将两个关注点结合起来：Agent 的执行流(execution flow)，以及该执行流所读写的操作状态(operational state)。在长程任务中，可靠性不仅取决于模型能否生成一个好的下一步动作，还取决于 harness 能否记住已经发生了什么、决定下一步该做什么、如何从错误中恢复、协调子任务，以及在任务完成时停止。
+    <p>生命周期与编排关注 Agent 系统如何在多次模型调用、工具调用、失败、修订和交接中推进任务。这一层将两个关注点结合起来：Agent 的执行流(execution flow)，以及该执行流所读写的操作状态(operational state)。在长程任务中，可靠性不仅取决于模型能否生成一个好的下一步动作，还取决于 harness 能否记住已经发生了什么、决定下一步该做什么、如何从错误中恢复、协调子任务，以及在任务完成时停止。
 1. 生命周期状态管理 生命周期状态(Lifecycle State)指的是为了 Agent 能持续完成任务，系统必须在幕后维护的一套“账本”或“进度表”。如果把智能体执行任务比作玩一款大型单机游戏，生命周期状态就是你的“存档文件”，确保你即使关机重启，也能从上次停下的地方继续，而不是重头再来。
 生命周期状态到底包含什么？
 它不是大模型看到的“对话历史”，而是智能体系统运行所需的“管理数据”。主要包括：
@@ -162,9 +162,10 @@
 论文探讨了开发者在设计这个“账本”时面临的权衡：
 模式 做法 优点 缺点 无状态 (Stateless Replay) 每次都通过读取所有的对话记录，强行让模型“回忆”起目前的进度。 易于审计和重现，逻辑简单。 任务越长，对话记录就越臃肿，Token 成本极高。 有状态 (Stateful Execution) 把进度存进数据库或文件系统。下一次直接读取这个“存档”。 效率高，支持超长周期的任务，可以快速恢复。 调试和一致性维护相对困难（比如存档坏了怎么办）。 2. Single-Agent 循环 单 Agent 循环是 Agent 系统中的基本执行单元。单个 Agent 通过工具使用和反馈与环境交互，不存在多个 Agent 之间的显式协调。单 Agent 循环遵循 ReAct 范式，交替进行推理(reasoning)、行动(action)和观察(observation)。这类系统的行为不仅由模型决定，还由构造提示词、调用工具、管理控制流、将工具输出反馈到后续步骤等 harness 决定。
 在这一层级，论文根据系统如何维护运行状态，将 Single-Agent 内部循环分为两种主要模式：
+无状态重放 (Stateless Replay)： 特点：完全通过记录的交互历史来重构执行状态。这种方式提升了可重复性和可审计性。 代表系统：Codex CLI 是此类模式的最典型案例。 混合执行 (Hybrid Execution)： 特点：除了交互历史，还依赖于持久化的制品（Artifacts），如文件、代码仓库、数据库或会话状态。 优势：在轨迹极长时，避免了因历史记录过长导致的上下文爆炸，提高了任务的连续性和故障恢复能力。 代表系统：包括 OpenCode、Claude Code、Aider 和 SWE-agent 等大多数实用的编码智能体。详见表 2。 尽管单智能体循环具有极大的灵活性，但在处理长程任务时会面临诸多问题：
 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2026-05-31 21:11:17 +0800 CST'>May 31, 2026</span></footer>
+  <footer class="entry-footer"><span title='2026-05-28 21:00:00 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
   <a class="entry-link" aria-label="post link to Harness Engineering 05. Lifecycle" href="https://kkbill.github.io/posts/harness-engineering-05-lifecycle/"></a>
 </article>
     </main>

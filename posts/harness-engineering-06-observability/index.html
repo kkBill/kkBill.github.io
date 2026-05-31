@@ -7,8 +7,7 @@
 <meta name="robots" content="index, follow">
 <title>Harness Engineering 06. Observability | kkBill&#39;s Blog</title>
 <meta name="keywords" content="Agent, LLM, Harness Engineering, Observability">
-<meta name="description" content="Harness Engineering 06. Observability
-这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。
+<meta name="description" content="这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。
 
 1. 追踪与监控平台 (Tracing and Monitoring)
 可观测性的基石是结构化轨迹捕获(Structured Trace Collection)，其核心在于将每一次 LLM 调用、工具执行和检索步骤记录为一棵 tree of spans。这种结构支持对智能体行为进行过滤、回放和深度分析。
@@ -30,7 +29,7 @@
 
 
 ">
-<meta name="author" content="">
+<meta name="author" content="kkBill">
 <link rel="canonical" href="https://kkbill.github.io/posts/harness-engineering-06-observability/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.92a394705e940d8c58b5d19d52962fdd69c340635fa8f5cd6fd22d66f268a7ca.css" integrity="sha256-kqOUcF6UDYxYtdGdUpYv3WnDQGNfqPXNb9ItZvJop8o=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://kkbill.github.io/favicon.ico">
@@ -95,7 +94,7 @@
 </script><meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-06-observability/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
   <meta property="og:title" content="Harness Engineering 06. Observability">
-  <meta property="og:description" content="Harness Engineering 06. Observability 这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。
+  <meta property="og:description" content="这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。
 1. 追踪与监控平台 (Tracing and Monitoring) 可观测性的基石是结构化轨迹捕获(Structured Trace Collection)，其核心在于将每一次 LLM 调用、工具执行和检索步骤记录为一棵 tree of spans。这种结构支持对智能体行为进行过滤、回放和深度分析。
 论文列举了 Langfuse、Opik、Arize Phoenix 和 MLflow 等代表性平台。为了降低系统集成门槛，业界正趋向于采用统一的检测标准，而 OpenTelemetry (OTel) 逐步成为通用的事实标准。OTel 社区发布了生成式 AI 的语义规范，定义了模型名称、温度、Token 计数和延迟等标准属性。有两个开源项目落地了这套规范，分别是 OpenLLMetry 和 OpenInference。通过 OTel，智能体轨迹数据可以无缝流入传统的微服务监控后端（如 Prometheus, Jaeger, Grafana等），减少了运维负担。
 此外，作者还介绍了两种更具创新性的监测范式：
@@ -103,7 +102,7 @@
   <meta property="og:locale" content="en">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2026-05-31T21:15:45+08:00">
+    <meta property="article:published_time" content="2026-05-29T21:00:00+08:00">
     <meta property="article:modified_time" content="2026-05-31T21:15:45+08:00">
     <meta property="article:tag" content="Agent">
     <meta property="article:tag" content="LLM">
@@ -112,7 +111,7 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Harness Engineering 06. Observability">
-  <meta name="twitter:description" content="Harness Engineering 06. Observability 这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。
+  <meta name="twitter:description" content="这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。
 1. 追踪与监控平台 (Tracing and Monitoring) 可观测性的基石是结构化轨迹捕获(Structured Trace Collection)，其核心在于将每一次 LLM 调用、工具执行和检索步骤记录为一棵 tree of spans。这种结构支持对智能体行为进行过滤、回放和深度分析。
 论文列举了 Langfuse、Opik、Arize Phoenix 和 MLflow 等代表性平台。为了降低系统集成门槛，业界正趋向于采用统一的检测标准，而 OpenTelemetry (OTel) 逐步成为通用的事实标准。OTel 社区发布了生成式 AI 的语义规范，定义了模型名称、温度、Token 计数和延迟等标准属性。有两个开源项目落地了这套规范，分别是 OpenLLMetry 和 OpenInference。通过 OTel，智能体轨迹数据可以无缝流入传统的微服务监控后端（如 Prometheus, Jaeger, Grafana等），减少了运维负担。
 此外，作者还介绍了两种更具创新性的监测范式：
@@ -145,15 +144,19 @@
   "@type": "BlogPosting",
   "headline": "Harness Engineering 06. Observability",
   "name": "Harness Engineering 06. Observability",
-  "description": "Harness Engineering 06. Observability 这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。\n1. 追踪与监控平台 (Tracing and Monitoring) 可观测性的基石是结构化轨迹捕获(Structured Trace Collection)，其核心在于将每一次 LLM 调用、工具执行和检索步骤记录为一棵 tree of spans。这种结构支持对智能体行为进行过滤、回放和深度分析。\n论文列举了 Langfuse、Opik、Arize Phoenix 和 MLflow 等代表性平台。为了降低系统集成门槛，业界正趋向于采用统一的检测标准，而 OpenTelemetry (OTel) 逐步成为通用的事实标准。OTel 社区发布了生成式 AI 的语义规范，定义了模型名称、温度、Token 计数和延迟等标准属性。有两个开源项目落地了这套规范，分别是 OpenLLMetry 和 OpenInference。通过 OTel，智能体轨迹数据可以无缝流入传统的微服务监控后端（如 Prometheus, Jaeger, Grafana等），减少了运维负担。\n此外，作者还介绍了两种更具创新性的监测范式：\n基于 eBPF 的系统级监控 (AgentSight)： 机制：从应用程序进程外部进行监控，在 SSL 边界拦截加密流量以捕获意图，并监控内核事件（进程创建、文件 I/O、网络调用）以捕获动作。 核心优势：具有框架无关性，且不会被已攻破或配置错误的智能体绕过，这对安全性要求极高的部署场景至关重要。其 CPU 开销极低（小于 3%）。 结构化日志 (AgentTrace)： 认知表面（Cognitive）：捕捉显式的推理步骤、计划和反思。这对于调试由“推理错误”而非“系统错误”引发的故障至关重要。 操作表面（Operational）：记录工具调用和 API 交互。 上下文表面（Contextual）：记录环境状态和用户输入。 ",
+  "description": "这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。\n1. 追踪与监控平台 (Tracing and Monitoring) 可观测性的基石是结构化轨迹捕获(Structured Trace Collection)，其核心在于将每一次 LLM 调用、工具执行和检索步骤记录为一棵 tree of spans。这种结构支持对智能体行为进行过滤、回放和深度分析。\n论文列举了 Langfuse、Opik、Arize Phoenix 和 MLflow 等代表性平台。为了降低系统集成门槛，业界正趋向于采用统一的检测标准，而 OpenTelemetry (OTel) 逐步成为通用的事实标准。OTel 社区发布了生成式 AI 的语义规范，定义了模型名称、温度、Token 计数和延迟等标准属性。有两个开源项目落地了这套规范，分别是 OpenLLMetry 和 OpenInference。通过 OTel，智能体轨迹数据可以无缝流入传统的微服务监控后端（如 Prometheus, Jaeger, Grafana等），减少了运维负担。\n此外，作者还介绍了两种更具创新性的监测范式：\n基于 eBPF 的系统级监控 (AgentSight)： 机制：从应用程序进程外部进行监控，在 SSL 边界拦截加密流量以捕获意图，并监控内核事件（进程创建、文件 I/O、网络调用）以捕获动作。 核心优势：具有框架无关性，且不会被已攻破或配置错误的智能体绕过，这对安全性要求极高的部署场景至关重要。其 CPU 开销极低（小于 3%）。 结构化日志 (AgentTrace)： 认知表面（Cognitive）：捕捉显式的推理步骤、计划和反思。这对于调试由“推理错误”而非“系统错误”引发的故障至关重要。 操作表面（Operational）：记录工具调用和 API 交互。 上下文表面（Contextual）：记录环境状态和用户输入。 ",
   "keywords": [
     "Agent", "LLM", "Harness Engineering", "Observability"
   ],
-  "articleBody": "Harness Engineering 06. Observability 这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。\n1. 追踪与监控平台 (Tracing and Monitoring) 可观测性的基石是结构化轨迹捕获(Structured Trace Collection)，其核心在于将每一次 LLM 调用、工具执行和检索步骤记录为一棵 tree of spans。这种结构支持对智能体行为进行过滤、回放和深度分析。\n论文列举了 Langfuse、Opik、Arize Phoenix 和 MLflow 等代表性平台。为了降低系统集成门槛，业界正趋向于采用统一的检测标准，而 OpenTelemetry (OTel) 逐步成为通用的事实标准。OTel 社区发布了生成式 AI 的语义规范，定义了模型名称、温度、Token 计数和延迟等标准属性。有两个开源项目落地了这套规范，分别是 OpenLLMetry 和 OpenInference。通过 OTel，智能体轨迹数据可以无缝流入传统的微服务监控后端（如 Prometheus, Jaeger, Grafana等），减少了运维负担。\n此外，作者还介绍了两种更具创新性的监测范式：\n基于 eBPF 的系统级监控 (AgentSight)： 机制：从应用程序进程外部进行监控，在 SSL 边界拦截加密流量以捕获意图，并监控内核事件（进程创建、文件 I/O、网络调用）以捕获动作。 核心优势：具有框架无关性，且不会被已攻破或配置错误的智能体绕过，这对安全性要求极高的部署场景至关重要。其 CPU 开销极低（小于 3%）。 结构化日志 (AgentTrace)： 认知表面（Cognitive）：捕捉显式的推理步骤、计划和反思。这对于调试由“推理错误”而非“系统错误”引发的故障至关重要。 操作表面（Operational）：记录工具调用和 API 交互。 上下文表面（Contextual）：记录环境状态和用户输入。 ",
-  "wordCount" : "61",
+  "articleBody": "这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。\n1. 追踪与监控平台 (Tracing and Monitoring) 可观测性的基石是结构化轨迹捕获(Structured Trace Collection)，其核心在于将每一次 LLM 调用、工具执行和检索步骤记录为一棵 tree of spans。这种结构支持对智能体行为进行过滤、回放和深度分析。\n论文列举了 Langfuse、Opik、Arize Phoenix 和 MLflow 等代表性平台。为了降低系统集成门槛，业界正趋向于采用统一的检测标准，而 OpenTelemetry (OTel) 逐步成为通用的事实标准。OTel 社区发布了生成式 AI 的语义规范，定义了模型名称、温度、Token 计数和延迟等标准属性。有两个开源项目落地了这套规范，分别是 OpenLLMetry 和 OpenInference。通过 OTel，智能体轨迹数据可以无缝流入传统的微服务监控后端（如 Prometheus, Jaeger, Grafana等），减少了运维负担。\n此外，作者还介绍了两种更具创新性的监测范式：\n基于 eBPF 的系统级监控 (AgentSight)： 机制：从应用程序进程外部进行监控，在 SSL 边界拦截加密流量以捕获意图，并监控内核事件（进程创建、文件 I/O、网络调用）以捕获动作。 核心优势：具有框架无关性，且不会被已攻破或配置错误的智能体绕过，这对安全性要求极高的部署场景至关重要。其 CPU 开销极低（小于 3%）。 结构化日志 (AgentTrace)： 认知表面（Cognitive）：捕捉显式的推理步骤、计划和反思。这对于调试由“推理错误”而非“系统错误”引发的故障至关重要。 操作表面（Operational）：记录工具调用和 API 交互。 上下文表面（Contextual）：记录环境状态和用户输入。 ",
+  "wordCount" : "57",
   "inLanguage": "en",
-  "datePublished": "2026-05-31T21:15:45+08:00",
+  "datePublished": "2026-05-29T21:00:00+08:00",
   "dateModified": "2026-05-31T21:15:45+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "kkBill"
+  },
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": "https://kkbill.github.io/posts/harness-engineering-06-observability/"
@@ -234,7 +237,7 @@
     <h1 class="post-title entry-hint-parent">
       Harness Engineering 06. Observability
     </h1>
-    <div class="post-meta"><span title='2026-05-31 21:15:45 +0800 CST'>May 31, 2026</span>
+    <div class="post-meta"><span title='2026-05-29 21:00:00 +0800 CST'>May 29, 2026</span>&nbsp;·&nbsp;<span>kkBill</span>
 
 </div>
   </header> <div class="toc">
@@ -245,10 +248,6 @@
 
         <div class="inner"><ul>
                 <li>
-                    <a href="#harness-engineering-06-observability" aria-label="Harness Engineering 06. Observability">Harness Engineering 06. Observability</a><ul>
-                        <ul>
-                        
-                <li>
                     <a href="#1-%e8%bf%bd%e8%b8%aa%e4%b8%8e%e7%9b%91%e6%8e%a7%e5%b9%b3%e5%8f%b0-tracing-and-monitoring" aria-label="1. 追踪与监控平台 (Tracing and Monitoring)">1. 追踪与监控平台 (Tracing and Monitoring)</a></li>
                 <li>
                     <a href="#2-%e6%99%ba%e8%83%bd%e4%bd%93%e4%b8%93%e7%94%a8%e8%bf%90%e7%bb%b4%e5%b9%b3%e5%8f%b0-agent-specific-operations" aria-label="2. 智能体专用运维平台 (Agent-Specific Operations)">2. 智能体专用运维平台 (Agent-Specific Operations)</a></li>
@@ -258,15 +257,11 @@
                     <a href="#4-%e5%8f%af%e9%9d%a0%e6%80%a7%e5%b7%a5%e7%a8%8b-reliability-engineering" aria-label="4. 可靠性工程 (Reliability Engineering)">4. 可靠性工程 (Reliability Engineering)</a>
                 </li>
             </ul>
-            </ul>
-            </li>
-            </ul>
         </div>
     </details>
 </div>
 
-  <div class="post-content"><h1 id="harness-engineering-06-observability">Harness Engineering 06. Observability<a hidden class="anchor" aria-hidden="true" href="#harness-engineering-06-observability">#</a></h1>
-<p>这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。</p>
+  <div class="post-content"><p>这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。</p>
 <p><img alt="image.png" loading="lazy" src="/posts/harness-engineering-06-observability/images/image00.png"></p>
 <h3 id="1-追踪与监控平台-tracing-and-monitoring">1. 追踪与监控平台 (Tracing and Monitoring)<a hidden class="anchor" aria-hidden="true" href="#1-追踪与监控平台-tracing-and-monitoring">#</a></h3>
 <p>可观测性的基石是<strong>结构化轨迹捕获(Structured Trace Collection)</strong>，其核心在于将每一次 LLM 调用、工具执行和检索步骤记录为一棵 tree of spans。这种结构支持对智能体行为进行过滤、回放和深度分析。</p>
@@ -391,10 +386,10 @@
     <br>
     <span>Harness Engineering 07. Verification and Evaluation</span>
   </a>
-  <a class="next" href="https://kkbill.github.io/posts/harness-engineering-01-overview/">
+  <a class="next" href="https://kkbill.github.io/posts/harness-engineering-05-lifecycle/">
     <span class="title">Next »</span>
     <br>
-    <span>Harness Engineering 01. Overview</span>
+    <span>Harness Engineering 05. Lifecycle</span>
   </a>
 </nav>
 

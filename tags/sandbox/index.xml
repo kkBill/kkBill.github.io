@@ -11,10 +11,9 @@
     <item>
       <title>Harness Engineering 02. Execution Environment</title>
       <link>https://kkbill.github.io/posts/harness-engineering-02-execution/</link>
-      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
+      <pubDate>Mon, 25 May 2026 21:00:00 +0800</pubDate>
       <guid>https://kkbill.github.io/posts/harness-engineering-02-execution/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-02-execution-environment&#34;&gt;Harness Engineering 02. Execution Environment&lt;/h1&gt;
-&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-02-execution/images/image00.png&#34;&gt;&lt;/p&gt;
+      <description>&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-02-execution/images/image00.png&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-范围与概念&#34;&gt;1. 范围与概念&lt;/h2&gt;
 &lt;h3 id=&#34;11-定义&#34;&gt;1.1 定义&lt;/h3&gt;
 &lt;p&gt;Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。&lt;/p&gt;
@@ -26,7 +25,17 @@
 &lt;h2 id=&#34;2-agent-沙箱的类别&#34;&gt;2. Agent 沙箱的类别&lt;/h2&gt;
 &lt;p&gt;2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于&lt;strong&gt;工作负载&lt;/strong&gt;和&lt;strong&gt;使用场景&lt;/strong&gt;将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。&lt;/p&gt;
 &lt;h3 id=&#34;21-通用托管沙箱&#34;&gt;2.1 通用托管沙箱&lt;/h3&gt;
-&lt;p&gt;通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：&lt;/p&gt;</description>
+&lt;p&gt;通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/daytonaio/daytona&#34;&gt;&lt;strong&gt;Daytona&lt;/strong&gt;&lt;/a&gt;：Daytona is a secure and elastic infrastructure runtime for AI-generated code execution and agent workflows. Our open-source platform provides &lt;a href=&#34;https://www.daytona.io/docs/sandboxes/&#34;&gt;sandboxes&lt;/a&gt;, full composable computers with complete isolation, a dedicated kernel, filesystem, network stack, and allocated vCPU, RAM, and disk.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/e2b-dev/E2B&#34;&gt;&lt;strong&gt;E2B&lt;/strong&gt;&lt;/a&gt;：基于 Firecracker microVMs 构建的智能体沙箱&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://modal.com&#34;&gt;&lt;strong&gt;Modal&lt;/strong&gt;&lt;/a&gt;：使用 gVisor 的 Python 平台，具备大规模自动扩展能力&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://northflank.com/&#34;&gt;&lt;strong&gt;Northflank&lt;/strong&gt;&lt;/a&gt;：同时支持 Kata Containers、Firecracker 和 gVisor 的平台&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/alibaba/OpenSandbox&#34;&gt;&lt;strong&gt;OpenSandbox&lt;/strong&gt;&lt;/a&gt;：阿里巴巴的开源通用沙箱&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.docker.com/blog/docker-sandboxes-a-new-approach-for-coding-agent-safety/&#34;&gt;&lt;strong&gt;Docker Sandboxes&lt;/strong&gt;&lt;/a&gt;：Docker 官方基于微虚拟机的沙箱产品，发布于 2025 年&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;22-computer-use-agent-基础设施&#34;&gt;2.2 Computer-Use Agent 基础设施&lt;/h3&gt;
+&lt;p&gt;Computer-use agent 基础设施代表了一种独特的执行模型：&lt;strong&gt;Agent 通过模拟的鼠标、键盘和屏幕观察等方式与图形界面交互，而非通过 API 或 shell 命令&lt;/strong&gt;。代表性系统包括 Anthropic 的 &lt;a href=&#34;https://www.anthropic.com/news/3-5-models-and-computer-use&#34;&gt;Computer Use Anthropic (2024b)&lt;/a&gt;，使 Claude 能够直接操作桌面环境；开源的 computer-use agent 基础设施 &lt;a href=&#34;https://github.com/trycua/cua&#34;&gt;Cua&lt;/a&gt;；以及 &lt;a href=&#34;https://arxiv.org/pdf/2404.07972&#34;&gt;OSWorld&lt;/a&gt; 提供的基于 VM 的环境，它同时充当评估基础设施和 computer-use 沙箱的参考实现。&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

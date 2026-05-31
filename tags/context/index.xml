@@ -11,10 +11,9 @@
     <item>
       <title>Harness Engineering 04. Context and Memory management</title>
       <link>https://kkbill.github.io/posts/harness-engineering-04-context/</link>
-      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
+      <pubDate>Wed, 27 May 2026 21:00:00 +0800</pubDate>
       <guid>https://kkbill.github.io/posts/harness-engineering-04-context/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-04-context-and-memory-management&#34;&gt;Harness Engineering 04. Context and Memory management&lt;/h1&gt;
-&lt;p&gt;这一层控制模型在执行的每一步看到什么信息，以及知识如何在多轮对话和会话之间持久化。核心工程问题可以简单表述为：在每一步给模型提供恰好正确的信息，不多不少。上下文太少，Agent 缺乏正确推理所需的状态；太多，则会导致性能下降。&lt;/p&gt;
+      <description>&lt;p&gt;这一层控制模型在执行的每一步看到什么信息，以及知识如何在多轮对话和会话之间持久化。核心工程问题可以简单表述为：在每一步给模型提供恰好正确的信息，不多不少。上下文太少，Agent 缺乏正确推理所需的状态；太多，则会导致性能下降。&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-04-context/images/image00.png&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-为什么上下文必须被工程化&#34;&gt;1. 为什么上下文必须被工程化&lt;/h2&gt;
 &lt;p&gt;更大的上下文窗口并不能解决记忆问题。理解这一点，需要从架构层面来分析。&lt;/p&gt;

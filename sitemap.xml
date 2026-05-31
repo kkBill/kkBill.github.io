@@ -81,31 +81,6 @@
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>https://kkbill.github.io/tags/context/</loc>
-    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://kkbill.github.io/posts/harness-engineering-01-overview/</loc>
-    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://kkbill.github.io/posts/harness-engineering-02-execution/</loc>
-    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://kkbill.github.io/posts/harness-engineering-03-tool/</loc>
-    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://kkbill.github.io/posts/harness-engineering-04-context/</loc>
-    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
     <loc>https://kkbill.github.io/posts/harness-engineering-05-lifecycle/</loc>
     <lastmod>2026-05-31T21:11:17+08:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -116,12 +91,37 @@
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>https://kkbill.github.io/tags/sandbox/</loc>
+    <loc>https://kkbill.github.io/tags/context/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-04-context/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-03-tool/</loc>
     <lastmod>2026-05-31T21:11:17+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
     <loc>https://kkbill.github.io/tags/tool/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-02-execution/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/sandbox/</loc>
+    <lastmod>2026-05-31T21:11:17+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/harness-engineering-01-overview/</loc>
     <lastmod>2026-05-31T21:11:17+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>

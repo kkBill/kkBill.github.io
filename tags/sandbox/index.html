@@ -153,16 +153,18 @@
     </h2>
   </header>
   <div class="entry-content">
-    <p>Harness Engineering 02. Execution Environment 1. 范围与概念 1.1 定义 Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。
+    <p>
+1. 范围与概念 1.1 定义 Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。
 1.2 为何沙箱在 Agent 时代处于核心地位 Agent 时代的沙箱并非仅仅是从传统多租户代码执行继承而来的安全措施。它同时服务于三个不同的目的，而这三者的结合，将沙箱从运维细节提升为 Agent Harness 设计中的一等公民。
 第一个目的是安全(security)。Agent 沙箱面临的挑战超出了传统多租户代码执行的范畴。LLM 生成的代码在大规模下既不可审计也不可预测，这使得静态审查无法作为主要防御手段。Agent 在多步骤中自主执行，无法获得人工干预。提示注入(prompt injection)攻击模糊了可信的用户意图与恶意输入之间的边界。近期关于沙箱逃逸的实证研究表明，这些担忧并非是假设性的，我们将在1.3节具体展开讨论。
 第二个目的是可复现性(reproducibility)。长程 Agent 任务以及衡量它们的评估基础设施需要能够将执行状态重置。Docker 容器或 microVM 可以被销毁并按需重建，而开发者的工作站则不行——这一特性使得基于沙箱的评估标准成为现实，如 SWE-bench。在训练阶段，当单个任务可能在并行轨迹中被重放数百次时，缺乏廉价的重置机制本身就是可扩展性的瓶颈。
 第三个目的是活跃性(liveness)，这是 Agent 时代最具特异性的目的。没有沙箱，Agent 希望执行的每一个潜在风险动作都必须向人类发出显式的权限提醒。这会产生两种失效模式：用户因挫败感而放弃使用 Agent，或者他们反射性地批准一切请求，从而破坏了风险提示的初衷。沙箱通过定义一个有界区域来打破这一僵局，在该区域内 Agent 被授权自由行动，将权限从”针对每个动作的询问”转变为”会话级别的配置”。Anthropic 报告称，为 Claude Code 引入沙箱机制后，权限提示减少了 84%，同时保持了安全性。
 2. Agent 沙箱的类别 2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于工作负载和使用场景将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。
 2.1 通用托管沙箱 通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：
+Daytona：Daytona is a secure and elastic infrastructure runtime for AI-generated code execution and agent workflows. Our open-source platform provides sandboxes, full composable computers with complete isolation, a dedicated kernel, filesystem, network stack, and allocated vCPU, RAM, and disk. E2B：基于 Firecracker microVMs 构建的智能体沙箱 Modal：使用 gVisor 的 Python 平台，具备大规模自动扩展能力 Northflank：同时支持 Kata Containers、Firecracker 和 gVisor 的平台 OpenSandbox：阿里巴巴的开源通用沙箱 Docker Sandboxes：Docker 官方基于微虚拟机的沙箱产品，发布于 2025 年 2.2 Computer-Use Agent 基础设施 Computer-use agent 基础设施代表了一种独特的执行模型：Agent 通过模拟的鼠标、键盘和屏幕观察等方式与图形界面交互，而非通过 API 或 shell 命令。代表性系统包括 Anthropic 的 Computer Use Anthropic (2024b)，使 Claude 能够直接操作桌面环境；开源的 computer-use agent 基础设施 Cua；以及 OSWorld 提供的基于 VM 的环境，它同时充当评估基础设施和 computer-use 沙箱的参考实现。
 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2026-05-31 21:11:17 +0800 CST'>May 31, 2026</span></footer>
+  <footer class="entry-footer"><span title='2026-05-25 21:00:00 +0800 CST'>May 25, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
   <a class="entry-link" aria-label="post link to Harness Engineering 02. Execution Environment" href="https://kkbill.github.io/posts/harness-engineering-02-execution/"></a>
 </article>
     </main>

@@ -11,10 +11,9 @@
     <item>
       <title>Harness Engineering 08. Governance and Security</title>
       <link>https://kkbill.github.io/posts/harness-engineering-08-governance/</link>
-      <pubDate>Sun, 31 May 2026 21:38:13 +0800</pubDate>
+      <pubDate>Sun, 31 May 2026 21:00:00 +0800</pubDate>
       <guid>https://kkbill.github.io/posts/harness-engineering-08-governance/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-08-governance-and-security&#34;&gt;Harness Engineering 08. Governance and Security&lt;/h1&gt;
-&lt;p&gt;这一层讨论如何约束 Agent 行为、确保安全性并建立问责机制。LLM Agent 如今已能执行 shell 命令、提交代码以及调用第三方 API。对于生产环境而言，一个核心问题是：&lt;strong&gt;Agent 应在什么约束条件下行动，当这些约束失效时由谁承担责任&lt;/strong&gt;。治理拥有独立的工具生态系统，包括权限引擎、策略语言、审计流水线和网关控制。&lt;/p&gt;
+      <description>&lt;p&gt;这一层讨论如何约束 Agent 行为、确保安全性并建立问责机制。LLM Agent 如今已能执行 shell 命令、提交代码以及调用第三方 API。对于生产环境而言，一个核心问题是：&lt;strong&gt;Agent 应在什么约束条件下行动，当这些约束失效时由谁承担责任&lt;/strong&gt;。治理拥有独立的工具生态系统，包括权限引擎、策略语言、审计流水线和网关控制。&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-08-governance/images/image00.png&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-权限模型与身份管理&#34;&gt;1. 权限模型与身份管理&lt;/h2&gt;
 &lt;p&gt;权限模型与身份管理解决的是“&lt;strong&gt;智能体能访问哪些资源&lt;/strong&gt;”这一核心问题。由于智能体执行的任务通常是由自然语言定义的，在部署时往往难以预知其所需的工具集，这使得传统的访问控制模型（如 RBAC 或 ABAC）面临挑战。论文基于粒度的视角展开论述，从部署时固定的静态边界，到每次工具调用时评估的上下文策略，再到多智能体间的访问策略，等等。&lt;/p&gt;
@@ -80,10 +79,9 @@
     <item>
       <title>Harness Engineering 07. Verification and Evaluation</title>
       <link>https://kkbill.github.io/posts/harness-engineering-07-evaluation/</link>
-      <pubDate>Sun, 31 May 2026 21:15:58 +0800</pubDate>
+      <pubDate>Sat, 30 May 2026 21:00:00 +0800</pubDate>
       <guid>https://kkbill.github.io/posts/harness-engineering-07-evaluation/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-07-verification-and-evaluation&#34;&gt;Harness Engineering 07. Verification and Evaluation&lt;/h1&gt;
-&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-07-evaluation/images/image00.png&#34;&gt;&lt;/p&gt;
+      <description>&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-07-evaluation/images/image00.png&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-harness-evaluation-as-a-task-to-feedback-lifecycle&#34;&gt;1. Harness Evaluation as a Task-to-Feedback Lifecycle&lt;/h2&gt;
 &lt;p&gt;首先，我们需要打破传统评估的固有认知，即&lt;strong&gt;评估分数应当被视为“Model-Harness 对”的属性&lt;/strong&gt;，而不仅仅是模型本身的能力体现。这对应于本文贯穿始终的“绑定约束理论”，即任务执行的可靠性很大程度上取决于模型之外的 Harness 基础设施（Agent = Model + Harness）。因此，这要求在评估协议中，要么保持 Harness 不变，对比模型；要么保持模型不变，将不同的 Harness 配置作为显式的实验因子进行测试。&lt;/p&gt;
 &lt;p&gt;此外，Harness 评估与传统 LLM 评估也存在根本差异。&lt;strong&gt;传统 LLM 评估&lt;/strong&gt;通常针对固定的输入，对输出进行评分（如 &lt;a href=&#34;https://arxiv.org/abs/2009.03300&#34;&gt;MMLU&lt;/a&gt;）；&lt;strong&gt;Harness 评估&lt;/strong&gt;衡量的则是一个执行集(Execution Episode，即 Agent 与环境交互的一个完整周期)——任务被锚定于某个环境中，智能体在其中与工具、状态进行多轮交互，评估者需要判断&lt;strong&gt;最终结果&lt;/strong&gt;以及&lt;strong&gt;达成结果的路径（轨迹）&lt;/strong&gt;。&lt;/p&gt;
@@ -129,10 +127,9 @@
     <item>
       <title>Harness Engineering 06. Observability</title>
       <link>https://kkbill.github.io/posts/harness-engineering-06-observability/</link>
-      <pubDate>Sun, 31 May 2026 21:15:45 +0800</pubDate>
+      <pubDate>Fri, 29 May 2026 21:00:00 +0800</pubDate>
       <guid>https://kkbill.github.io/posts/harness-engineering-06-observability/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-06-observability&#34;&gt;Harness Engineering 06. Observability&lt;/h1&gt;
-&lt;p&gt;这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。&lt;/p&gt;
+      <description>&lt;p&gt;这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-06-observability/images/image00.png&#34;&gt;&lt;/p&gt;
 &lt;h3 id=&#34;1-追踪与监控平台-tracing-and-monitoring&#34;&gt;1. 追踪与监控平台 (Tracing and Monitoring)&lt;/h3&gt;
 &lt;p&gt;可观测性的基石是&lt;strong&gt;结构化轨迹捕获(Structured Trace Collection)&lt;/strong&gt;，其核心在于将每一次 LLM 调用、工具执行和检索步骤记录为一棵 tree of spans。这种结构支持对智能体行为进行过滤、回放和深度分析。&lt;/p&gt;
@@ -155,132 +152,21 @@
 &lt;/ul&gt;
 &lt;p&gt;&lt;img alt=&#34;AgentTrace: &lt;a href=\&#34;https://arxiv.org/abs/2602.10133\&#34;&gt;https://arxiv.org/abs/2602.10133&lt;/a&gt;&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-06-observability/images/image01.png&#34;&gt;
 &lt;em&gt;引用 AgentTrace: &lt;a href=&#34;https://arxiv.org/abs/2602.10133&#34;&gt;https://arxiv.org/abs/2602.10133&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;在看可观测性相关的内容时，以及平时与同事的交流中，发现大家对 trace 和 trajectory 这两个词常常混着用，宏观上它们应该是同义的，但不太能区分两者间细微的差异。故在此做一个记录与说明。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Harness Engineering 01. Overview</title>
-      <link>https://kkbill.github.io/posts/harness-engineering-01-overview/</link>
-      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
-      <guid>https://kkbill.github.io/posts/harness-engineering-01-overview/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-01-overview&#34;&gt;Harness Engineering 01. Overview&lt;/h1&gt;
+&lt;p&gt;在看可观测性相关的内容时，以及平时与同事的交流中，发现大家对 trace 和 trajectory 这两个词常常混着用，宏观上它们应该是同义的，但不太能区分两者间细微的差异。故在此做一个记录与说明。&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;Harness Engineering 系列文章以 &lt;a href=&#34;https://openreview.net/pdf?id=eONq7FdiHa&#34;&gt;Agent Harness Engineering: A Survey&lt;/a&gt;  为基础进行整理。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&#34;agent--model--harness&#34;&gt;Agent = Model + Harness&lt;/h2&gt;
-&lt;p&gt;学术界对 LLM-based Agent 的研究，很大程度上一直是对模型本身的研究。研究主要聚焦于模型能做什么：它是否能跨多步规划、可靠的调用工具、检索并压缩相关记忆，或与其他智能体协调等。其隐含假设是，智能体能力主要取决于模型能力——&lt;strong&gt;只要有足够强大的模型和足够好的提示词，就能产生足够可靠的输出&lt;/strong&gt;。&lt;/p&gt;
-&lt;p&gt;然而，最新的研究&lt;strong&gt;挑战了”仅靠更好的模型就能产生更可靠的智能体”这一假设&lt;/strong&gt;。三项最新的研究确定了这一点：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Trace vs. Trajectory&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://blog.can.ac/2026/02/12/the-harness-problem/&#34;&gt;Bölük (2026)&lt;/a&gt; 仅修改了编辑工具的格式和工具 harness，未对模型做任何改动，就在15个模型上实现了编码基准测试高达10倍的提升。&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.langchain.com/blog/improving-deep-agents-with-harness-engineering&#34;&gt;LangChain (2026)&lt;/a&gt; 仅通过系统提示词重构、中间件上下文注入和自验证钩子，就将 GPT-5.2-Codex 智能体在 Terminal-Bench 2.0 上的表现从 52.8% 提升至 66.5%——13.7个百分点的提升完全来自基础设施层面的改动。&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://arxiv.org/pdf/2603.28052&#34;&gt;Meta-Harness (2026)&lt;/a&gt; 通过 automated harness 优化，在 Terminal-Bench-2 上达到 76.4%，超越了所有手工设计的方法，且未修改任何模型权重。&lt;/li&gt;
+&lt;li&gt;Trace：其核心释义是“痕迹”**。**在计算机科学中，它侧重于日志记录和程序执行流的复现。它像是一份详尽的“账单”，记录了系统在每一个微观瞬间发生了什么。&lt;/li&gt;
+&lt;li&gt;Trajectory：其核心释义是“物体移动的路径”，也就是“轨迹”。在智能体语境中，它侧重于“动作的演进过程”，展示了智能体如何从起点状态逐步移动到终点状态，强调的是宏观的连贯性和方向性。&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;以上每种情况，变量都是 harness（即控制上下文构建、工具交互、编排、反馈和执行约束的基础设施层），而模型保持不变。仅靠 harness 优化，就足以实现大幅性能提升，这种模式并非偶然：&lt;strong&gt;harness，而非模型本身，是驱动可靠性的关键因素&lt;/strong&gt;。&lt;/p&gt;
-&lt;p&gt;论文将这一模式称为“binding-constraint thesis(约束绑定论)”，即对于长程任务的评估，&lt;strong&gt;基准测试的方差可能由 harness 和模型共同驱动&lt;/strong&gt;。本文以此论题作为后续论述的框架。&lt;/p&gt;
-&lt;h2 id=&#34;agent-系统的演进&#34;&gt;Agent 系统的演进&lt;/h2&gt;
-&lt;p&gt;&lt;strong&gt;ReAct 时代(2022–2023)&lt;/strong&gt;。&lt;a href=&#34;https://arxiv.org/pdf/2210.03629&#34;&gt;ReAct&lt;/a&gt; 将 observe-think-act loop 确立为一种基础原语。早期系统的基础设施极为精简：一个 while 循环、一个提示模板和一个小型的工具分发表。AutoGPT 和 BabyAGI 展示了通过任务队列、记忆和工具调度来包装语言模型调用以实现完全自主运行的雄心，同时也暴露出执行失控、上下文膨胀、状态丢失等问题。这些并非单纯的提示问题，而是基础设施问题。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;工具集成与多智能体协调(2023–2024)&lt;/strong&gt;。Gorilla、&lt;a href=&#34;https://proceedings.iclr.cc/paper_files/paper/2024/file/28e50ee5b72e90b50e7196fde8ea260e-Paper-Conference.pdf&#34;&gt;ToolLLM&lt;/a&gt; 和 &lt;a href=&#34;https://proceedings.neurips.cc/paper_files/paper/2023/file/d842425e4bf79ba039352da0f658a906-Paper-Conference.pdf&#34;&gt;Toolformer&lt;/a&gt; 的研究表明，工具使用能力可以通过学习或引导产生；CAMEL、ChatDev、MetaGPT 和 Mixture-of-Agents 引入了多智能体协调模式，涵盖角色扮演对话、软件开发组织架构以及分层智能体聚合等多种形式；随着 &lt;a href=&#34;https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf&#34;&gt;SWE-bench&lt;/a&gt;、AgentBench、WebArena 和 GAIA 的推出，evaluation infrastructure（评估基础设施）日趋成熟；协议标准化则以 Anthropic 的 MCP 和 Google 的 A2A 为起点。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Harness Engineering 02. Execution Environment</title>
-      <link>https://kkbill.github.io/posts/harness-engineering-02-execution/</link>
-      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
-      <guid>https://kkbill.github.io/posts/harness-engineering-02-execution/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-02-execution-environment&#34;&gt;Harness Engineering 02. Execution Environment&lt;/h1&gt;
-&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-02-execution/images/image00.png&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;1-范围与概念&#34;&gt;1. 范围与概念&lt;/h2&gt;
-&lt;h3 id=&#34;11-定义&#34;&gt;1.1 定义&lt;/h3&gt;
-&lt;p&gt;Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。&lt;/p&gt;
-&lt;h3 id=&#34;12-为何沙箱在-agent-时代处于核心地位&#34;&gt;1.2 为何沙箱在 Agent 时代处于核心地位&lt;/h3&gt;
-&lt;p&gt;Agent 时代的沙箱并非仅仅是从传统多租户代码执行继承而来的安全措施。它同时服务于三个不同的目的，而这三者的结合，将沙箱从运维细节提升为 Agent Harness 设计中的一等公民。&lt;/p&gt;
-&lt;p&gt;第一个目的是&lt;strong&gt;安全(security)&lt;/strong&gt;。Agent 沙箱面临的挑战超出了传统多租户代码执行的范畴。LLM 生成的代码在大规模下既不可审计也不可预测，这使得静态审查无法作为主要防御手段。Agent 在多步骤中自主执行，无法获得人工干预。提示注入(prompt injection)攻击模糊了可信的用户意图与恶意输入之间的边界。近期关于沙箱逃逸的实证研究表明，这些担忧并非是假设性的，我们将在1.3节具体展开讨论。&lt;/p&gt;
-&lt;p&gt;第二个目的是&lt;strong&gt;可复现性(reproducibility)&lt;/strong&gt;。长程 Agent 任务以及衡量它们的评估基础设施需要能够将执行状态重置。Docker 容器或 microVM 可以被销毁并按需重建，而开发者的工作站则不行——这一特性使得基于沙箱的评估标准成为现实，如 &lt;a href=&#34;https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf&#34;&gt;SWE-bench&lt;/a&gt;。在训练阶段，当单个任务可能在并行轨迹中被重放数百次时，&lt;strong&gt;缺乏廉价的重置机制本身就是可扩展性的瓶颈&lt;/strong&gt;。&lt;/p&gt;
-&lt;p&gt;第三个目的是&lt;strong&gt;活跃性(liveness)&lt;/strong&gt;，这是 Agent 时代最具特异性的目的。没有沙箱，Agent 希望执行的每一个潜在风险动作都必须向人类发出显式的权限提醒。这会产生两种失效模式：&lt;strong&gt;用户因挫败感而放弃使用 Agent，或者他们反射性地批准一切请求，从而破坏了风险提示的初衷&lt;/strong&gt;。沙箱通过定义一个有界区域来打破这一僵局，在该区域内 Agent 被授权自由行动，将权限从”针对每个动作的询问”转变为”会话级别的配置”。&lt;a href=&#34;https://www.anthropic.com/engineering/claude-code-sandboxing&#34;&gt;Anthropic 报告&lt;/a&gt;称，为 Claude Code 引入沙箱机制后，权限提示减少了 84%，同时保持了安全性。&lt;/p&gt;
-&lt;h2 id=&#34;2-agent-沙箱的类别&#34;&gt;2. Agent 沙箱的类别&lt;/h2&gt;
-&lt;p&gt;2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于&lt;strong&gt;工作负载&lt;/strong&gt;和&lt;strong&gt;使用场景&lt;/strong&gt;将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。&lt;/p&gt;
-&lt;h3 id=&#34;21-通用托管沙箱&#34;&gt;2.1 通用托管沙箱&lt;/h3&gt;
-&lt;p&gt;通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Harness Engineering 03. Tool</title>
-      <link>https://kkbill.github.io/posts/harness-engineering-03-tool/</link>
-      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
-      <guid>https://kkbill.github.io/posts/harness-engineering-03-tool/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-03-tool&#34;&gt;Harness Engineering 03. Tool&lt;/h1&gt;
-&lt;p&gt;工具接口与协议层定义了 Agent 如何发现能力、如何表示可调用的功能接口，以及如何执行动作。在实践中，&lt;strong&gt;一方面通过引入更多工具来扩大能力覆盖范围，另一方面通过保持尽量小规模的动作空间和提示词大小来维护决策质量&lt;/strong&gt;。Anthropic 和 OpenAI 最新工程实践[&lt;a href=&#34;https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents&#34;&gt;1&lt;/a&gt;][&lt;a href=&#34;https://developers.openai.com/api/docs/guides/function-calling&#34;&gt;2&lt;/a&gt;]指出，&lt;strong&gt;过多的工具会降低可靠性、增加 token 开销，并放大规划错误&lt;/strong&gt;。&lt;/p&gt;
-&lt;p&gt;论文将这一层组织为四个方向：协议与接口标准；工具描述、发现与选择；工具增强训练与集成；以及可扩展性与会话管理。&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-03-tool/images/image00.png&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;1-协议与接口标准&#34;&gt;1. 协议与接口标准&lt;/h2&gt;
-&lt;p&gt;本节所讨论的核心问题是：&lt;strong&gt;智能体如何通过统一的“语言”和“规则”与外部世界或其他智能体进行交互&lt;/strong&gt;。&lt;/p&gt;
-&lt;p&gt;在没有统一协议之前，开发者需要为每一个工具（如天气API、数据库、文件搜索）编写专门的对接代码。&lt;strong&gt;MCP(Model Context Protocol，模型上下文协议)&lt;/strong&gt; 改变了这一点。 它像是一个“通用插头”。只要工具方提供了一个遵循 MCP 标准的服务，任何智能体都可以直接“插入”并使用，无需重新开发连接器。&lt;/p&gt;
-&lt;p&gt;A2A 针对的则是另一个问题。&lt;strong&gt;它不是向单个 Agent 暴露工具，而是对智能体之间的通信进行标准化&lt;/strong&gt;，包括通过 Agent Cards 进行发现、支持同步与流式交互，以及长时任务协作。MCP 和 A2A 是互补的：MCP 主要用于工具访问，A2A 用于 Agent 间委托与协作。&lt;/p&gt;
-&lt;p&gt;函数调用模式(Function-calling schemas)与 API 描述标准是这一层的基础构建块。OpenAI 风格的 &lt;a href=&#34;https://developers.openai.com/api/docs/guides/function-calling&#34;&gt;Function Calling&lt;/a&gt; 使工具调用具备可操作性；&lt;a href=&#34;https://github.com/OAI/OpenAPI-Specification&#34;&gt;OpenAPI&lt;/a&gt; 提供了一种与语言无关的、机器可读的 API 契约，许多 Agent 框架将其用作工具生成与验证的来源。此外，仓库级别的指令文件（如 &lt;a href=&#34;https://github.com/agentsmd/agents.md&#34;&gt;AGENTS.md&lt;/a&gt; 和 &lt;a href=&#34;https://github.com/agentmd/agent.md&#34;&gt;AGENT.md&lt;/a&gt;）提供了一种轻量级替代方案，用于直接在版本控制中编码工具使用和工作流约束，从而降低Code Agent的配置成本。&lt;/p&gt;
-&lt;p&gt;论文根据&lt;strong&gt;谁在和谁说话&lt;/strong&gt;（交互边界）对协议与接口标准进行如下分类：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;模型 ↔ 函数 (Model ↔ Function)&lt;/strong&gt;：
-&lt;ul&gt;
-&lt;li&gt;典型代表：OpenAI 的 Function Calling。&lt;/li&gt;
-&lt;li&gt;解释：**这是最基础的一层，解决的是“模型如何把一句话变成一个结构化的 JSON 请求”。**它发生在模型调用的瞬间。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;智能体 ↔ 外部能力 (Agent ↔ Capability)&lt;/strong&gt;：
-&lt;ul&gt;
-&lt;li&gt;典型代表：MCP、OpenAPI。&lt;/li&gt;
-&lt;li&gt;解释：&lt;strong&gt;解决的是“运行中的智能体如何调用它所在环境之外的工具”&lt;/strong&gt;。比如一个在终端运行的智能体如何去调取 Google 搜索或操作远程数据库。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;智能体 ↔ 智能体 (Agent ↔ Agent)&lt;/strong&gt;：
-&lt;ul&gt;
-&lt;li&gt;典型代表：A2A、ACP。&lt;/li&gt;
-&lt;li&gt;解释：当一个智能体搞不定任务，需要把任务交给另一个智能体协作时，它们之间需要一套发现对方、同步进度、甚至流式传输信息的标准。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;智能体 ↔ 代码库/环境 (Agent ↔ Repo/Env)&lt;/strong&gt;：
-&lt;ul&gt;
-&lt;li&gt;典型代表：AGENTS.md。&lt;/li&gt;
-&lt;li&gt;解释：这是一种轻量级标准，通过在代码库里放一个 Markdown 文件来告诉智能体：“这里有哪些工具可以用，有哪些规则你要遵守”。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-03-tool/images/image01.png&#34;&gt;&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Harness Engineering 04. Context and Memory management</title>
-      <link>https://kkbill.github.io/posts/harness-engineering-04-context/</link>
-      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
-      <guid>https://kkbill.github.io/posts/harness-engineering-04-context/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-04-context-and-memory-management&#34;&gt;Harness Engineering 04. Context and Memory management&lt;/h1&gt;
-&lt;p&gt;这一层控制模型在执行的每一步看到什么信息，以及知识如何在多轮对话和会话之间持久化。核心工程问题可以简单表述为：在每一步给模型提供恰好正确的信息，不多不少。上下文太少，Agent 缺乏正确推理所需的状态；太多，则会导致性能下降。&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-04-context/images/image00.png&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;1-为什么上下文必须被工程化&#34;&gt;1. 为什么上下文必须被工程化&lt;/h2&gt;
-&lt;p&gt;更大的上下文窗口并不能解决记忆问题。理解这一点，需要从架构层面来分析。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;注意力成本&lt;/strong&gt;。Transformer 的自注意力机制计算上下文中每个 token 之间的成对关系。对于 n 个 token，会产生 n² 个成对权重；计算量和记忆量随上下文长度以 n² 增长。虽然 FlashAttention 和位置编码插值(position-encoding interpolation)等技术可以降低常数因子，但二次方结构是架构性的。这使得上下文窗口成为一种稀缺资源。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;U 形注意力曲线&lt;/strong&gt;。仅靠架构成本并不能解释为什么模型即使在计算可负担的情况下，仍会在长上下文任务上失败。&lt;a href=&#34;https://arxiv.org/abs/2307.03172&#34;&gt;Lost in the Middle&lt;/a&gt; 提供了关键的实证结果：在包含 20 个输入文档的多文档问答任务上，&lt;strong&gt;当相关文档位于上下文的中间时，准确率比放在开头或结尾时下降超过 30%&lt;/strong&gt;。&lt;strong&gt;这种 U 形性能曲线在不同模型、任务和上下文长度上均成立，包括专门为长上下文训练的模型&lt;/strong&gt;。这表明信息的摆放位置和信息的客观存在同样重要。一个检索到了正确内容但放置位置不佳的智能体，效果仍然可能比较差。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;上下文腐化&lt;/strong&gt;。&lt;a href=&#34;https://www.trychroma.com/research/context-rot&#34;&gt;上下文腐化&lt;/a&gt;(Context Rot)是指随着输入信息的增长，大模型在检索、定位和对上下文信息进行推理的能力会出现非线性的下降。 这并非由于窗口被填满导致的物理截断，而是一种即使在窗口容量充足时也会发生的“性能退化”。根据对 18 种前沿模型（包括 GPT-4.1、Claude Opus 4、Gemini 2.5 等）的对照评估，上下文腐化呈现出以下特征：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;早发性(Early Onset)&lt;/strong&gt;：性能退化在上下文窗口远未填满之前就开始了。例如，一个支持 200K Token 的模型，可能在输入达到 50K 时就已经表现出显著的性能损失。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;非均匀性与任务特定性(Task-specific)&lt;/strong&gt;：腐化的程度取决于查询的类型。
-&lt;ul&gt;
-&lt;li&gt;语义模糊挑战：当查询与目标信息在词汇上不完全匹配时（语义模糊），性能下降比“精确匹配”查询更剧烈。这表明模型在海量信息中识别“隐含关联”的能力最先发生腐化。&lt;em&gt;注：这里描述的是，信息在进入上下文窗口后，模型在思考过程中如何从Prompt里的成千上万个词中提取和关联信息。&lt;/em&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;复合型失败(Compound Failure)&lt;/strong&gt;：腐化是由两个连续的逻辑失效组成的：
-&lt;ol&gt;
-&lt;li&gt;定位失效（Localization）：模型无法从海量 Token 中精准找到相关的片段。&lt;/li&gt;
-&lt;li&gt;推理失效（Reasoning）：即便定位到了信息，模型也无法在被大量噪音包围的状态下，对该信息进行正确逻辑处理。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;上下文腐化现象并非偶然，对于任何在多个步骤中累积工具结果、中间推理状态和文件内容的智能体来说，这是正常的运行状态。&lt;/p&gt;
-&lt;h2 id=&#34;2-从-prompt-engineering-到-context-engineering&#34;&gt;2. 从 Prompt Engineering 到 Context Engineering&lt;/h2&gt;
-&lt;p&gt;Prompt Engineering 优化的是面向单次模型调用的静态文本输入，Context Engineering 优化的则是多步任务中每一步推理时模型可用的完整信息状态。Anthropic 团队在 &lt;a href=&#34;https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents&#34;&gt;&lt;strong&gt;Effective context engineering for AI agents&lt;/strong&gt;&lt;/a&gt; 中将 Context engineering 定义为：&lt;/p&gt;</description>
+&lt;p&gt;总结，Trace 是构建 Trajectory 的基础。没有详尽的 Trace 捕捉，就无法抽象出准确的 Trajectory；而 Trajectory 是对 Trace 数据的高级叙事化表达。&lt;/p&gt;</description>
     </item>
     <item>
       <title>Harness Engineering 05. Lifecycle</title>
       <link>https://kkbill.github.io/posts/harness-engineering-05-lifecycle/</link>
-      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
+      <pubDate>Thu, 28 May 2026 21:00:00 +0800</pubDate>
       <guid>https://kkbill.github.io/posts/harness-engineering-05-lifecycle/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-05-lifecycle&#34;&gt;Harness Engineering 05. Lifecycle&lt;/h1&gt;
-&lt;p&gt;生命周期与编排关注 Agent 系统如何在多次模型调用、工具调用、失败、修订和交接中推进任务。这一层将两个关注点结合起来：&lt;strong&gt;Agent 的执行流(execution flow)，以及该执行流所读写的操作状态(operational state)&lt;/strong&gt;。在长程任务中，可靠性不仅取决于模型能否生成一个好的下一步动作，还取决于 harness 能否记住已经发生了什么、决定下一步该做什么、如何从错误中恢复、协调子任务，以及在任务完成时停止。&lt;/p&gt;
+      <description>&lt;p&gt;生命周期与编排关注 Agent 系统如何在多次模型调用、工具调用、失败、修订和交接中推进任务。这一层将两个关注点结合起来：&lt;strong&gt;Agent 的执行流(execution flow)，以及该执行流所读写的操作状态(operational state)&lt;/strong&gt;。在长程任务中，可靠性不仅取决于模型能否生成一个好的下一步动作，还取决于 harness 能否记住已经发生了什么、决定下一步该做什么、如何从错误中恢复、协调子任务，以及在任务完成时停止。&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-05-lifecycle/images/image00.png&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-生命周期状态管理&#34;&gt;1. 生命周期状态管理&lt;/h2&gt;
 &lt;p&gt;生命周期状态(Lifecycle State)指的是&lt;strong&gt;为了 Agent 能持续完成任务，系统必须在幕后维护的一套“账本”或“进度表”&lt;/strong&gt;。如果把智能体执行任务比作玩一款大型单机游戏，生命周期状态就是你的“存档文件”，确保你即使关机重启，也能从上次停下的地方继续，而不是重头再来。&lt;/p&gt;
@@ -325,7 +211,146 @@
 &lt;/table&gt;
 &lt;h2 id=&#34;2-single-agent-循环&#34;&gt;2. Single-Agent 循环&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;单 Agent 循环是 Agent 系统中的基本执行单元&lt;/strong&gt;。单个 Agent 通过工具使用和反馈与环境交互，不存在多个 Agent 之间的显式协调。单 Agent 循环遵循 ReAct 范式，交替进行推理(reasoning)、行动(action)和观察(observation)。这类系统的行为不仅由模型决定，还由构造提示词、调用工具、管理控制流、将工具输出反馈到后续步骤等 harness 决定。&lt;/p&gt;
-&lt;p&gt;在这一层级，论文根据系统如何维护运行状态，将 Single-Agent 内部循环分为两种主要模式：&lt;/p&gt;</description>
+&lt;p&gt;在这一层级，论文根据系统如何维护运行状态，将 Single-Agent 内部循环分为两种主要模式：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;无状态重放 (Stateless Replay)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;特点&lt;/strong&gt;：完全通过记录的交互历史来重构执行状态。这种方式提升了&lt;strong&gt;可重复性&lt;/strong&gt;和&lt;strong&gt;可审计性&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;代表系统&lt;/strong&gt;：Codex CLI 是此类模式的最典型案例。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;混合执行 (Hybrid Execution)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;特点&lt;/strong&gt;：除了交互历史，还依赖于持久化的制品（Artifacts），如文件、代码仓库、数据库或会话状态。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;优势&lt;/strong&gt;：在轨迹极长时，避免了因历史记录过长导致的上下文爆炸，提高了任务的&lt;strong&gt;连续性&lt;/strong&gt;和&lt;strong&gt;故障恢复能力&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;代表系统&lt;/strong&gt;：包括 OpenCode、Claude Code、Aider 和 SWE-agent 等大多数实用的编码智能体。详见表 2。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;尽管单智能体循环具有极大的灵活性，但在处理长程任务时会面临诸多问题：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Harness Engineering 04. Context and Memory management</title>
+      <link>https://kkbill.github.io/posts/harness-engineering-04-context/</link>
+      <pubDate>Wed, 27 May 2026 21:00:00 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/harness-engineering-04-context/</guid>
+      <description>&lt;p&gt;这一层控制模型在执行的每一步看到什么信息，以及知识如何在多轮对话和会话之间持久化。核心工程问题可以简单表述为：在每一步给模型提供恰好正确的信息，不多不少。上下文太少，Agent 缺乏正确推理所需的状态；太多，则会导致性能下降。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-04-context/images/image00.png&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-为什么上下文必须被工程化&#34;&gt;1. 为什么上下文必须被工程化&lt;/h2&gt;
+&lt;p&gt;更大的上下文窗口并不能解决记忆问题。理解这一点，需要从架构层面来分析。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意力成本&lt;/strong&gt;。Transformer 的自注意力机制计算上下文中每个 token 之间的成对关系。对于 n 个 token，会产生 n² 个成对权重；计算量和记忆量随上下文长度以 n² 增长。虽然 FlashAttention 和位置编码插值(position-encoding interpolation)等技术可以降低常数因子，但二次方结构是架构性的。这使得上下文窗口成为一种稀缺资源。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;U 形注意力曲线&lt;/strong&gt;。仅靠架构成本并不能解释为什么模型即使在计算可负担的情况下，仍会在长上下文任务上失败。&lt;a href=&#34;https://arxiv.org/abs/2307.03172&#34;&gt;Lost in the Middle&lt;/a&gt; 提供了关键的实证结果：在包含 20 个输入文档的多文档问答任务上，&lt;strong&gt;当相关文档位于上下文的中间时，准确率比放在开头或结尾时下降超过 30%&lt;/strong&gt;。&lt;strong&gt;这种 U 形性能曲线在不同模型、任务和上下文长度上均成立，包括专门为长上下文训练的模型&lt;/strong&gt;。这表明信息的摆放位置和信息的客观存在同样重要。一个检索到了正确内容但放置位置不佳的智能体，效果仍然可能比较差。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;上下文腐化&lt;/strong&gt;。&lt;a href=&#34;https://www.trychroma.com/research/context-rot&#34;&gt;上下文腐化&lt;/a&gt;(Context Rot)是指随着输入信息的增长，大模型在检索、定位和对上下文信息进行推理的能力会出现非线性的下降。 这并非由于窗口被填满导致的物理截断，而是一种即使在窗口容量充足时也会发生的“性能退化”。根据对 18 种前沿模型（包括 GPT-4.1、Claude Opus 4、Gemini 2.5 等）的对照评估，上下文腐化呈现出以下特征：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;早发性(Early Onset)&lt;/strong&gt;：性能退化在上下文窗口远未填满之前就开始了。例如，一个支持 200K Token 的模型，可能在输入达到 50K 时就已经表现出显著的性能损失。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;非均匀性与任务特定性(Task-specific)&lt;/strong&gt;：腐化的程度取决于查询的类型。
+&lt;ul&gt;
+&lt;li&gt;语义模糊挑战：当查询与目标信息在词汇上不完全匹配时（语义模糊），性能下降比“精确匹配”查询更剧烈。这表明模型在海量信息中识别“隐含关联”的能力最先发生腐化。&lt;em&gt;注：这里描述的是，信息在进入上下文窗口后，模型在思考过程中如何从Prompt里的成千上万个词中提取和关联信息。&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;复合型失败(Compound Failure)&lt;/strong&gt;：腐化是由两个连续的逻辑失效组成的：
+&lt;ol&gt;
+&lt;li&gt;定位失效（Localization）：模型无法从海量 Token 中精准找到相关的片段。&lt;/li&gt;
+&lt;li&gt;推理失效（Reasoning）：即便定位到了信息，模型也无法在被大量噪音包围的状态下，对该信息进行正确逻辑处理。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;上下文腐化现象并非偶然，对于任何在多个步骤中累积工具结果、中间推理状态和文件内容的智能体来说，这是正常的运行状态。&lt;/p&gt;
+&lt;h2 id=&#34;2-从-prompt-engineering-到-context-engineering&#34;&gt;2. 从 Prompt Engineering 到 Context Engineering&lt;/h2&gt;
+&lt;p&gt;Prompt Engineering 优化的是面向单次模型调用的静态文本输入，Context Engineering 优化的则是多步任务中每一步推理时模型可用的完整信息状态。Anthropic 团队在 &lt;a href=&#34;https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents&#34;&gt;&lt;strong&gt;Effective context engineering for AI agents&lt;/strong&gt;&lt;/a&gt; 中将 Context engineering 定义为：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Harness Engineering 03. Tool</title>
+      <link>https://kkbill.github.io/posts/harness-engineering-03-tool/</link>
+      <pubDate>Tue, 26 May 2026 21:00:00 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/harness-engineering-03-tool/</guid>
+      <description>&lt;p&gt;工具接口与协议层定义了 Agent 如何发现能力、如何表示可调用的功能接口，以及如何执行动作。在实践中，&lt;strong&gt;一方面通过引入更多工具来扩大能力覆盖范围，另一方面通过保持尽量小规模的动作空间和提示词大小来维护决策质量&lt;/strong&gt;。Anthropic 和 OpenAI 最新工程实践[&lt;a href=&#34;https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents&#34;&gt;1&lt;/a&gt;][&lt;a href=&#34;https://developers.openai.com/api/docs/guides/function-calling&#34;&gt;2&lt;/a&gt;]指出，&lt;strong&gt;过多的工具会降低可靠性、增加 token 开销，并放大规划错误&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;论文将这一层组织为四个方向：协议与接口标准；工具描述、发现与选择；工具增强训练与集成；以及可扩展性与会话管理。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-03-tool/images/image00.png&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-协议与接口标准&#34;&gt;1. 协议与接口标准&lt;/h2&gt;
+&lt;p&gt;本节所讨论的核心问题是：&lt;strong&gt;智能体如何通过统一的“语言”和“规则”与外部世界或其他智能体进行交互&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;在没有统一协议之前，开发者需要为每一个工具（如天气API、数据库、文件搜索）编写专门的对接代码。&lt;strong&gt;MCP(Model Context Protocol，模型上下文协议)&lt;/strong&gt; 改变了这一点。 它像是一个“通用插头”。只要工具方提供了一个遵循 MCP 标准的服务，任何智能体都可以直接“插入”并使用，无需重新开发连接器。&lt;/p&gt;
+&lt;p&gt;A2A 针对的则是另一个问题。&lt;strong&gt;它不是向单个 Agent 暴露工具，而是对智能体之间的通信进行标准化&lt;/strong&gt;，包括通过 Agent Cards 进行发现、支持同步与流式交互，以及长时任务协作。MCP 和 A2A 是互补的：MCP 主要用于工具访问，A2A 用于 Agent 间委托与协作。&lt;/p&gt;
+&lt;p&gt;函数调用模式(Function-calling schemas)与 API 描述标准是这一层的基础构建块。OpenAI 风格的 &lt;a href=&#34;https://developers.openai.com/api/docs/guides/function-calling&#34;&gt;Function Calling&lt;/a&gt; 使工具调用具备可操作性；&lt;a href=&#34;https://github.com/OAI/OpenAPI-Specification&#34;&gt;OpenAPI&lt;/a&gt; 提供了一种与语言无关的、机器可读的 API 契约，许多 Agent 框架将其用作工具生成与验证的来源。此外，仓库级别的指令文件（如 &lt;a href=&#34;https://github.com/agentsmd/agents.md&#34;&gt;AGENTS.md&lt;/a&gt; 和 &lt;a href=&#34;https://github.com/agentmd/agent.md&#34;&gt;AGENT.md&lt;/a&gt;）提供了一种轻量级替代方案，用于直接在版本控制中编码工具使用和工作流约束，从而降低Code Agent的配置成本。&lt;/p&gt;
+&lt;p&gt;论文根据&lt;strong&gt;谁在和谁说话&lt;/strong&gt;（交互边界）对协议与接口标准进行如下分类：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;模型 ↔ 函数 (Model ↔ Function)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;典型代表：OpenAI 的 Function Calling。&lt;/li&gt;
+&lt;li&gt;解释：**这是最基础的一层，解决的是“模型如何把一句话变成一个结构化的 JSON 请求”。**它发生在模型调用的瞬间。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;智能体 ↔ 外部能力 (Agent ↔ Capability)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;典型代表：MCP、OpenAPI。&lt;/li&gt;
+&lt;li&gt;解释：&lt;strong&gt;解决的是“运行中的智能体如何调用它所在环境之外的工具”&lt;/strong&gt;。比如一个在终端运行的智能体如何去调取 Google 搜索或操作远程数据库。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;智能体 ↔ 智能体 (Agent ↔ Agent)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;典型代表：A2A、ACP。&lt;/li&gt;
+&lt;li&gt;解释：当一个智能体搞不定任务，需要把任务交给另一个智能体协作时，它们之间需要一套发现对方、同步进度、甚至流式传输信息的标准。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;智能体 ↔ 代码库/环境 (Agent ↔ Repo/Env)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;典型代表：AGENTS.md。&lt;/li&gt;
+&lt;li&gt;解释：这是一种轻量级标准，通过在代码库里放一个 Markdown 文件来告诉智能体：“这里有哪些工具可以用，有哪些规则你要遵守”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-03-tool/images/image01.png&#34;&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Harness Engineering 02. Execution Environment</title>
+      <link>https://kkbill.github.io/posts/harness-engineering-02-execution/</link>
+      <pubDate>Mon, 25 May 2026 21:00:00 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/harness-engineering-02-execution/</guid>
+      <description>&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-02-execution/images/image00.png&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-范围与概念&#34;&gt;1. 范围与概念&lt;/h2&gt;
+&lt;h3 id=&#34;11-定义&#34;&gt;1.1 定义&lt;/h3&gt;
+&lt;p&gt;Agent 的执行环境（Execution Environment）指的是 Agent 动作被物理执行的基础设施层，执行环境与沙箱是紧密耦合的概念。生产级 Agent 系统几乎总是在沙箱环境中执行动作。&lt;/p&gt;
+&lt;h3 id=&#34;12-为何沙箱在-agent-时代处于核心地位&#34;&gt;1.2 为何沙箱在 Agent 时代处于核心地位&lt;/h3&gt;
+&lt;p&gt;Agent 时代的沙箱并非仅仅是从传统多租户代码执行继承而来的安全措施。它同时服务于三个不同的目的，而这三者的结合，将沙箱从运维细节提升为 Agent Harness 设计中的一等公民。&lt;/p&gt;
+&lt;p&gt;第一个目的是&lt;strong&gt;安全(security)&lt;/strong&gt;。Agent 沙箱面临的挑战超出了传统多租户代码执行的范畴。LLM 生成的代码在大规模下既不可审计也不可预测，这使得静态审查无法作为主要防御手段。Agent 在多步骤中自主执行，无法获得人工干预。提示注入(prompt injection)攻击模糊了可信的用户意图与恶意输入之间的边界。近期关于沙箱逃逸的实证研究表明，这些担忧并非是假设性的，我们将在1.3节具体展开讨论。&lt;/p&gt;
+&lt;p&gt;第二个目的是&lt;strong&gt;可复现性(reproducibility)&lt;/strong&gt;。长程 Agent 任务以及衡量它们的评估基础设施需要能够将执行状态重置。Docker 容器或 microVM 可以被销毁并按需重建，而开发者的工作站则不行——这一特性使得基于沙箱的评估标准成为现实，如 &lt;a href=&#34;https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf&#34;&gt;SWE-bench&lt;/a&gt;。在训练阶段，当单个任务可能在并行轨迹中被重放数百次时，&lt;strong&gt;缺乏廉价的重置机制本身就是可扩展性的瓶颈&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;第三个目的是&lt;strong&gt;活跃性(liveness)&lt;/strong&gt;，这是 Agent 时代最具特异性的目的。没有沙箱，Agent 希望执行的每一个潜在风险动作都必须向人类发出显式的权限提醒。这会产生两种失效模式：&lt;strong&gt;用户因挫败感而放弃使用 Agent，或者他们反射性地批准一切请求，从而破坏了风险提示的初衷&lt;/strong&gt;。沙箱通过定义一个有界区域来打破这一僵局，在该区域内 Agent 被授权自由行动，将权限从”针对每个动作的询问”转变为”会话级别的配置”。&lt;a href=&#34;https://www.anthropic.com/engineering/claude-code-sandboxing&#34;&gt;Anthropic 报告&lt;/a&gt;称，为 Claude Code 引入沙箱机制后，权限提示减少了 84%，同时保持了安全性。&lt;/p&gt;
+&lt;h2 id=&#34;2-agent-沙箱的类别&#34;&gt;2. Agent 沙箱的类别&lt;/h2&gt;
+&lt;p&gt;2024 年至 2026 年间，Agent 沙箱基础设施从少量的通用运行时分化为多个不同的产品类别，每个类别针对不同的任务类型进行了优化。我们基于&lt;strong&gt;工作负载&lt;/strong&gt;和&lt;strong&gt;使用场景&lt;/strong&gt;将这一领域组织为七个类别。包括通用托管沙箱、Computer-Use Agent 基础设施、代码专用沙箱、框架集成运行时、浏览器评估环境、OS 级权限沙箱以及沙箱抽象层。以下各子节逐一介绍每个类别。&lt;/p&gt;
+&lt;h3 id=&#34;21-通用托管沙箱&#34;&gt;2.1 通用托管沙箱&lt;/h3&gt;
+&lt;p&gt;通用托管沙箱提供 sandbox-as-a-service 平台，通过 API 接口暴露任意 OCI 容器镜像，支持未指定工作负载的 shell、文件系统、网络和解释器。代表性系统包括：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/daytonaio/daytona&#34;&gt;&lt;strong&gt;Daytona&lt;/strong&gt;&lt;/a&gt;：Daytona is a secure and elastic infrastructure runtime for AI-generated code execution and agent workflows. Our open-source platform provides &lt;a href=&#34;https://www.daytona.io/docs/sandboxes/&#34;&gt;sandboxes&lt;/a&gt;, full composable computers with complete isolation, a dedicated kernel, filesystem, network stack, and allocated vCPU, RAM, and disk.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/e2b-dev/E2B&#34;&gt;&lt;strong&gt;E2B&lt;/strong&gt;&lt;/a&gt;：基于 Firecracker microVMs 构建的智能体沙箱&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://modal.com&#34;&gt;&lt;strong&gt;Modal&lt;/strong&gt;&lt;/a&gt;：使用 gVisor 的 Python 平台，具备大规模自动扩展能力&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://northflank.com/&#34;&gt;&lt;strong&gt;Northflank&lt;/strong&gt;&lt;/a&gt;：同时支持 Kata Containers、Firecracker 和 gVisor 的平台&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/alibaba/OpenSandbox&#34;&gt;&lt;strong&gt;OpenSandbox&lt;/strong&gt;&lt;/a&gt;：阿里巴巴的开源通用沙箱&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.docker.com/blog/docker-sandboxes-a-new-approach-for-coding-agent-safety/&#34;&gt;&lt;strong&gt;Docker Sandboxes&lt;/strong&gt;&lt;/a&gt;：Docker 官方基于微虚拟机的沙箱产品，发布于 2025 年&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;22-computer-use-agent-基础设施&#34;&gt;2.2 Computer-Use Agent 基础设施&lt;/h3&gt;
+&lt;p&gt;Computer-use agent 基础设施代表了一种独特的执行模型：&lt;strong&gt;Agent 通过模拟的鼠标、键盘和屏幕观察等方式与图形界面交互，而非通过 API 或 shell 命令&lt;/strong&gt;。代表性系统包括 Anthropic 的 &lt;a href=&#34;https://www.anthropic.com/news/3-5-models-and-computer-use&#34;&gt;Computer Use Anthropic (2024b)&lt;/a&gt;，使 Claude 能够直接操作桌面环境；开源的 computer-use agent 基础设施 &lt;a href=&#34;https://github.com/trycua/cua&#34;&gt;Cua&lt;/a&gt;；以及 &lt;a href=&#34;https://arxiv.org/pdf/2404.07972&#34;&gt;OSWorld&lt;/a&gt; 提供的基于 VM 的环境，它同时充当评估基础设施和 computer-use 沙箱的参考实现。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Harness Engineering 01. Overview</title>
+      <link>https://kkbill.github.io/posts/harness-engineering-01-overview/</link>
+      <pubDate>Sun, 24 May 2026 21:00:00 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/harness-engineering-01-overview/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Harness Engineering 系列文章以 &lt;a href=&#34;https://openreview.net/pdf?id=eONq7FdiHa&#34;&gt;Agent Harness Engineering: A Survey&lt;/a&gt;  为基础进行整理。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;agent--model--harness&#34;&gt;Agent = Model + Harness&lt;/h2&gt;
+&lt;p&gt;学术界对 LLM-based Agent 的研究，很大程度上一直是对模型本身的研究。研究主要聚焦于模型能做什么：它是否能跨多步规划、可靠的调用工具、检索并压缩相关记忆，或与其他智能体协调等。其隐含假设是，智能体能力主要取决于模型能力——&lt;strong&gt;只要有足够强大的模型和足够好的提示词，就能产生足够可靠的输出&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;然而，最新的研究&lt;strong&gt;挑战了”仅靠更好的模型就能产生更可靠的智能体”这一假设&lt;/strong&gt;。三项最新的研究确定了这一点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://blog.can.ac/2026/02/12/the-harness-problem/&#34;&gt;Bölük (2026)&lt;/a&gt; 仅修改了编辑工具的格式和工具 harness，未对模型做任何改动，就在15个模型上实现了编码基准测试高达10倍的提升。&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.langchain.com/blog/improving-deep-agents-with-harness-engineering&#34;&gt;LangChain (2026)&lt;/a&gt; 仅通过系统提示词重构、中间件上下文注入和自验证钩子，就将 GPT-5.2-Codex 智能体在 Terminal-Bench 2.0 上的表现从 52.8% 提升至 66.5%——13.7个百分点的提升完全来自基础设施层面的改动。&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://arxiv.org/pdf/2603.28052&#34;&gt;Meta-Harness (2026)&lt;/a&gt; 通过 automated harness 优化，在 Terminal-Bench-2 上达到 76.4%，超越了所有手工设计的方法，且未修改任何模型权重。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;以上每种情况，变量都是 harness（即控制上下文构建、工具交互、编排、反馈和执行约束的基础设施层），而模型保持不变。仅靠 harness 优化，就足以实现大幅性能提升，这种模式并非偶然：&lt;strong&gt;harness，而非模型本身，是驱动可靠性的关键因素&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;论文将这一模式称为“binding-constraint thesis(约束绑定论)”，即对于长程任务的评估，&lt;strong&gt;基准测试的方差可能由 harness 和模型共同驱动&lt;/strong&gt;。本文以此论题作为后续论述的框架。&lt;/p&gt;
+&lt;h2 id=&#34;agent-系统的演进&#34;&gt;Agent 系统的演进&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;ReAct 时代(2022–2023)&lt;/strong&gt;。&lt;a href=&#34;https://arxiv.org/pdf/2210.03629&#34;&gt;ReAct&lt;/a&gt; 将 observe-think-act loop 确立为一种基础原语。早期系统的基础设施极为精简：一个 while 循环、一个提示模板和一个小型的工具分发表。AutoGPT 和 BabyAGI 展示了通过任务队列、记忆和工具调度来包装语言模型调用以实现完全自主运行的雄心，同时也暴露出执行失控、上下文膨胀、状态丢失等问题。这些并非单纯的提示问题，而是基础设施问题。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;工具集成与多智能体协调(2023–2024)&lt;/strong&gt;。Gorilla、&lt;a href=&#34;https://proceedings.iclr.cc/paper_files/paper/2024/file/28e50ee5b72e90b50e7196fde8ea260e-Paper-Conference.pdf&#34;&gt;ToolLLM&lt;/a&gt; 和 &lt;a href=&#34;https://proceedings.neurips.cc/paper_files/paper/2023/file/d842425e4bf79ba039352da0f658a906-Paper-Conference.pdf&#34;&gt;Toolformer&lt;/a&gt; 的研究表明，工具使用能力可以通过学习或引导产生；CAMEL、ChatDev、MetaGPT 和 Mixture-of-Agents 引入了多智能体协调模式，涵盖角色扮演对话、软件开发组织架构以及分层智能体聚合等多种形式；随着 &lt;a href=&#34;https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf&#34;&gt;SWE-bench&lt;/a&gt;、AgentBench、WebArena 和 GAIA 的推出，evaluation infrastructure（评估基础设施）日趋成熟；协议标准化则以 Anthropic 的 MCP 和 Google 的 A2A 为起点。&lt;/p&gt;</description>
     </item>
     <item>
       <title>Memory in the LLM Era</title>

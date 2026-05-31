@@ -11,10 +11,9 @@
     <item>
       <title>Harness Engineering 03. Tool</title>
       <link>https://kkbill.github.io/posts/harness-engineering-03-tool/</link>
-      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
+      <pubDate>Tue, 26 May 2026 21:00:00 +0800</pubDate>
       <guid>https://kkbill.github.io/posts/harness-engineering-03-tool/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-03-tool&#34;&gt;Harness Engineering 03. Tool&lt;/h1&gt;
-&lt;p&gt;工具接口与协议层定义了 Agent 如何发现能力、如何表示可调用的功能接口，以及如何执行动作。在实践中，&lt;strong&gt;一方面通过引入更多工具来扩大能力覆盖范围，另一方面通过保持尽量小规模的动作空间和提示词大小来维护决策质量&lt;/strong&gt;。Anthropic 和 OpenAI 最新工程实践[&lt;a href=&#34;https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents&#34;&gt;1&lt;/a&gt;][&lt;a href=&#34;https://developers.openai.com/api/docs/guides/function-calling&#34;&gt;2&lt;/a&gt;]指出，&lt;strong&gt;过多的工具会降低可靠性、增加 token 开销，并放大规划错误&lt;/strong&gt;。&lt;/p&gt;
+      <description>&lt;p&gt;工具接口与协议层定义了 Agent 如何发现能力、如何表示可调用的功能接口，以及如何执行动作。在实践中，&lt;strong&gt;一方面通过引入更多工具来扩大能力覆盖范围，另一方面通过保持尽量小规模的动作空间和提示词大小来维护决策质量&lt;/strong&gt;。Anthropic 和 OpenAI 最新工程实践[&lt;a href=&#34;https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents&#34;&gt;1&lt;/a&gt;][&lt;a href=&#34;https://developers.openai.com/api/docs/guides/function-calling&#34;&gt;2&lt;/a&gt;]指出，&lt;strong&gt;过多的工具会降低可靠性、增加 token 开销，并放大规划错误&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;论文将这一层组织为四个方向：协议与接口标准；工具描述、发现与选择；工具增强训练与集成；以及可扩展性与会话管理。&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-03-tool/images/image00.png&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-协议与接口标准&#34;&gt;1. 协议与接口标准&lt;/h2&gt;

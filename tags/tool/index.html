@@ -153,7 +153,7 @@
     </h2>
   </header>
   <div class="entry-content">
-    <p>Harness Engineering 03. Tool 工具接口与协议层定义了 Agent 如何发现能力、如何表示可调用的功能接口，以及如何执行动作。在实践中，一方面通过引入更多工具来扩大能力覆盖范围，另一方面通过保持尽量小规模的动作空间和提示词大小来维护决策质量。Anthropic 和 OpenAI 最新工程实践[1][2]指出，过多的工具会降低可靠性、增加 token 开销，并放大规划错误。
+    <p>工具接口与协议层定义了 Agent 如何发现能力、如何表示可调用的功能接口，以及如何执行动作。在实践中，一方面通过引入更多工具来扩大能力覆盖范围，另一方面通过保持尽量小规模的动作空间和提示词大小来维护决策质量。Anthropic 和 OpenAI 最新工程实践[1][2]指出，过多的工具会降低可靠性、增加 token 开销，并放大规划错误。
 论文将这一层组织为四个方向：协议与接口标准；工具描述、发现与选择；工具增强训练与集成；以及可扩展性与会话管理。
 1. 协议与接口标准 本节所讨论的核心问题是：智能体如何通过统一的“语言”和“规则”与外部世界或其他智能体进行交互。
 在没有统一协议之前，开发者需要为每一个工具（如天气API、数据库、文件搜索）编写专门的对接代码。MCP(Model Context Protocol，模型上下文协议) 改变了这一点。 它像是一个“通用插头”。只要工具方提供了一个遵循 MCP 标准的服务，任何智能体都可以直接“插入”并使用，无需重新开发连接器。
@@ -162,7 +162,7 @@ A2A 针对的则是另一个问题。它不是向单个 Agent 暴露工具，而
 论文根据谁在和谁说话（交互边界）对协议与接口标准进行如下分类：
 模型 ↔ 函数 (Model ↔ Function)： 典型代表：OpenAI 的 Function Calling。 解释：**这是最基础的一层，解决的是“模型如何把一句话变成一个结构化的 JSON 请求”。**它发生在模型调用的瞬间。 智能体 ↔ 外部能力 (Agent ↔ Capability)： 典型代表：MCP、OpenAPI。 解释：解决的是“运行中的智能体如何调用它所在环境之外的工具”。比如一个在终端运行的智能体如何去调取 Google 搜索或操作远程数据库。 智能体 ↔ 智能体 (Agent ↔ Agent)： 典型代表：A2A、ACP。 解释：当一个智能体搞不定任务，需要把任务交给另一个智能体协作时，它们之间需要一套发现对方、同步进度、甚至流式传输信息的标准。 智能体 ↔ 代码库/环境 (Agent ↔ Repo/Env)： 典型代表：AGENTS.md。 解释：这是一种轻量级标准，通过在代码库里放一个 Markdown 文件来告诉智能体：“这里有哪些工具可以用，有哪些规则你要遵守”。 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2026-05-31 21:11:17 +0800 CST'>May 31, 2026</span></footer>
+  <footer class="entry-footer"><span title='2026-05-26 21:00:00 +0800 CST'>May 26, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
   <a class="entry-link" aria-label="post link to Harness Engineering 03. Tool" href="https://kkbill.github.io/posts/harness-engineering-03-tool/"></a>
 </article>
     </main>

@@ -11,10 +11,9 @@
     <item>
       <title>Harness Engineering 07. Verification and Evaluation</title>
       <link>https://kkbill.github.io/posts/harness-engineering-07-evaluation/</link>
-      <pubDate>Sun, 31 May 2026 21:15:58 +0800</pubDate>
+      <pubDate>Sat, 30 May 2026 21:00:00 +0800</pubDate>
       <guid>https://kkbill.github.io/posts/harness-engineering-07-evaluation/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-07-verification-and-evaluation&#34;&gt;Harness Engineering 07. Verification and Evaluation&lt;/h1&gt;
-&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-07-evaluation/images/image00.png&#34;&gt;&lt;/p&gt;
+      <description>&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-07-evaluation/images/image00.png&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-harness-evaluation-as-a-task-to-feedback-lifecycle&#34;&gt;1. Harness Evaluation as a Task-to-Feedback Lifecycle&lt;/h2&gt;
 &lt;p&gt;首先，我们需要打破传统评估的固有认知，即&lt;strong&gt;评估分数应当被视为“Model-Harness 对”的属性&lt;/strong&gt;，而不仅仅是模型本身的能力体现。这对应于本文贯穿始终的“绑定约束理论”，即任务执行的可靠性很大程度上取决于模型之外的 Harness 基础设施（Agent = Model + Harness）。因此，这要求在评估协议中，要么保持 Harness 不变，对比模型；要么保持模型不变，将不同的 Harness 配置作为显式的实验因子进行测试。&lt;/p&gt;
 &lt;p&gt;此外，Harness 评估与传统 LLM 评估也存在根本差异。&lt;strong&gt;传统 LLM 评估&lt;/strong&gt;通常针对固定的输入，对输出进行评分（如 &lt;a href=&#34;https://arxiv.org/abs/2009.03300&#34;&gt;MMLU&lt;/a&gt;）；&lt;strong&gt;Harness 评估&lt;/strong&gt;衡量的则是一个执行集(Execution Episode，即 Agent 与环境交互的一个完整周期)——任务被锚定于某个环境中，智能体在其中与工具、状态进行多轮交互，评估者需要判断&lt;strong&gt;最终结果&lt;/strong&gt;以及&lt;strong&gt;达成结果的路径（轨迹）&lt;/strong&gt;。&lt;/p&gt;

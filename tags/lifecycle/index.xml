@@ -11,10 +11,9 @@
     <item>
       <title>Harness Engineering 05. Lifecycle</title>
       <link>https://kkbill.github.io/posts/harness-engineering-05-lifecycle/</link>
-      <pubDate>Sun, 31 May 2026 21:11:17 +0800</pubDate>
+      <pubDate>Thu, 28 May 2026 21:00:00 +0800</pubDate>
       <guid>https://kkbill.github.io/posts/harness-engineering-05-lifecycle/</guid>
-      <description>&lt;h1 id=&#34;harness-engineering-05-lifecycle&#34;&gt;Harness Engineering 05. Lifecycle&lt;/h1&gt;
-&lt;p&gt;生命周期与编排关注 Agent 系统如何在多次模型调用、工具调用、失败、修订和交接中推进任务。这一层将两个关注点结合起来：&lt;strong&gt;Agent 的执行流(execution flow)，以及该执行流所读写的操作状态(operational state)&lt;/strong&gt;。在长程任务中，可靠性不仅取决于模型能否生成一个好的下一步动作，还取决于 harness 能否记住已经发生了什么、决定下一步该做什么、如何从错误中恢复、协调子任务，以及在任务完成时停止。&lt;/p&gt;
+      <description>&lt;p&gt;生命周期与编排关注 Agent 系统如何在多次模型调用、工具调用、失败、修订和交接中推进任务。这一层将两个关注点结合起来：&lt;strong&gt;Agent 的执行流(execution flow)，以及该执行流所读写的操作状态(operational state)&lt;/strong&gt;。在长程任务中，可靠性不仅取决于模型能否生成一个好的下一步动作，还取决于 harness 能否记住已经发生了什么、决定下一步该做什么、如何从错误中恢复、协调子任务，以及在任务完成时停止。&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/harness-engineering-05-lifecycle/images/image00.png&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-生命周期状态管理&#34;&gt;1. 生命周期状态管理&lt;/h2&gt;
 &lt;p&gt;生命周期状态(Lifecycle State)指的是&lt;strong&gt;为了 Agent 能持续完成任务，系统必须在幕后维护的一套“账本”或“进度表”&lt;/strong&gt;。如果把智能体执行任务比作玩一款大型单机游戏，生命周期状态就是你的“存档文件”，确保你即使关机重启，也能从上次停下的地方继续，而不是重头再来。&lt;/p&gt;
@@ -59,7 +58,23 @@
 &lt;/table&gt;
 &lt;h2 id=&#34;2-single-agent-循环&#34;&gt;2. Single-Agent 循环&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;单 Agent 循环是 Agent 系统中的基本执行单元&lt;/strong&gt;。单个 Agent 通过工具使用和反馈与环境交互，不存在多个 Agent 之间的显式协调。单 Agent 循环遵循 ReAct 范式，交替进行推理(reasoning)、行动(action)和观察(observation)。这类系统的行为不仅由模型决定，还由构造提示词、调用工具、管理控制流、将工具输出反馈到后续步骤等 harness 决定。&lt;/p&gt;
-&lt;p&gt;在这一层级，论文根据系统如何维护运行状态，将 Single-Agent 内部循环分为两种主要模式：&lt;/p&gt;</description>
+&lt;p&gt;在这一层级，论文根据系统如何维护运行状态，将 Single-Agent 内部循环分为两种主要模式：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;无状态重放 (Stateless Replay)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;特点&lt;/strong&gt;：完全通过记录的交互历史来重构执行状态。这种方式提升了&lt;strong&gt;可重复性&lt;/strong&gt;和&lt;strong&gt;可审计性&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;代表系统&lt;/strong&gt;：Codex CLI 是此类模式的最典型案例。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;混合执行 (Hybrid Execution)&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;特点&lt;/strong&gt;：除了交互历史，还依赖于持久化的制品（Artifacts），如文件、代码仓库、数据库或会话状态。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;优势&lt;/strong&gt;：在轨迹极长时，避免了因历史记录过长导致的上下文爆炸，提高了任务的&lt;strong&gt;连续性&lt;/strong&gt;和&lt;strong&gt;故障恢复能力&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;代表系统&lt;/strong&gt;：包括 OpenCode、Claude Code、Aider 和 SWE-agent 等大多数实用的编码智能体。详见表 2。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;尽管单智能体循环具有极大的灵活性，但在处理长程任务时会面临诸多问题：&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
