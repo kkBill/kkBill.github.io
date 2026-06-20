@@ -172,6 +172,26 @@
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">Deep Dive into Tool Use in LLM
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>1. 引言：工具调用示例 工具调用涉及与模型的多次交互，简单来看，工具调用流程包含五个步骤：
+向模型发起请求，并提供可以调用的工具定义及说明 接收模型返回的 tool call 在应用侧，基于模型的返回结果去真正执行工具 将工具执行的结果添加至用户消息列表，再次向模型发起请求 接收模型的最终回复（或继续返回更多 tool call ） 下面是向模型发起“What’s the whether in Paris?”请求的执行流程，完整示例详见 OpenAI function calling。
+从接口层面看，工具调用能力通过独立的参数 tools 传入，虽然它看起来和用户输入（包括 system messages 和 user messages）是分开的，但在真正喂给模型之前，服务端会把这些工具定义序列化成文本，拼接进 prompt。一个完整的 prompt 大致如下（示意图）：
+1 2 3 4 5 6 [系统指令] system prompt... [工具定义] tools [用户消息] messages... 注：以 Claude Code 为例，其完整的提示词构建可参考 https://zhanghandong.github.io/harness-engineering-from-cc-to-ai-coding/part2/ch05.html
+从模型的角度，它看到的“工具”和“用户消息”本质上是一回事，都是 token 序列。确切的说，模型根本不区分工具和用户消息，工具选择本质上仍然是普通的文本生成（next-token prediction），只不过生成的内容恰好是“调用某个工具”的结构化文本。
+那么，用户发起请求时，模型内部究竟发生了什么？
+事实上，虽然涉及工具调用，但这仍然只是一次普通的前向推理过程，其目标依然是预测下一个 token，没什么特殊的机制。简单来说：
+整段 prompt 被 tokenize，经过多层 transformer 注意力计算； 注意力过程中，用户消息“what is the weather in Paris?”中的“weather”等 token 会与工具里的get_whether描述的 token 产生强关联（语义相近），这种关联是训练阶段学到的。 模型计算下一个 token 的概率分布。由于后训练（尤其是针对 tool use 的微调）见过大量“用户提出某类需求 → 输出某工具调用”的样本，因此在这个场景下，直接用自然语言回答的概率被压低，而输出调用 get_whether 工具的结构化片段的概率被抬高。 因此，模型逐 token 生成工具名和相应的参数 {“location”: “Paris”}，参数值&#34;Paris&#34;则是从用户的输入里“读”出来的。 所以，选择哪个工具的本质是——在所有候选工具名中，哪个 token 序列的生成概率最高。当含有多个候选工具时，模型通过注意力机制比较用户意图与各个工具描述的匹配度，在概率上倾向最匹配的那个。
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-06-20 10:00:00 +0800 CST'>June 20, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
+  <a class="entry-link" aria-label="post link to Deep Dive into Tool Use in LLM" href="https://kkbill.github.io/posts/deep-dive-into-tool-use-in-llm/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">Harness Engineering 08. Governance and Security
     </h2>
   </header>

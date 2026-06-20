@@ -7,17 +7,47 @@
     <priority>0.5</priority>
   </url><url>
     <loc>https://kkbill.github.io/categories/agent/</loc>
-    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
+    <lastmod>2026-06-20T10:00:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
     <loc>https://kkbill.github.io/tags/agent/</loc>
-    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
+    <lastmod>2026-06-20T10:00:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
     <loc>https://kkbill.github.io/categories/</loc>
-    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
+    <lastmod>2026-06-20T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/deep-dive-into-tool-use-in-llm/</loc>
+    <lastmod>2026-06-20T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/</loc>
+    <lastmod>2026-06-20T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/llm/</loc>
+    <lastmod>2026-06-20T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/posts/</loc>
+    <lastmod>2026-06-20T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/</loc>
+    <lastmod>2026-06-20T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://kkbill.github.io/tags/tool-use/</loc>
+    <lastmod>2026-06-20T10:00:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
@@ -36,27 +66,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>https://kkbill.github.io/</loc>
-    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://kkbill.github.io/tags/llm/</loc>
-    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://kkbill.github.io/posts/</loc>
-    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
     <loc>https://kkbill.github.io/tags/security/</loc>
-    <lastmod>2026-05-31T21:38:13+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://kkbill.github.io/tags/</loc>
     <lastmod>2026-05-31T21:38:13+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>

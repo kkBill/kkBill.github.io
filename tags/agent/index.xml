@@ -6,8 +6,55 @@
     <description>Recent content in Agent on kkBill&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 31 May 2026 21:38:13 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 20 Jun 2026 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://kkbill.github.io/tags/agent/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Deep Dive into Tool Use in LLM</title>
+      <link>https://kkbill.github.io/posts/deep-dive-into-tool-use-in-llm/</link>
+      <pubDate>Sat, 20 Jun 2026 10:00:00 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/deep-dive-into-tool-use-in-llm/</guid>
+      <description>&lt;h2 id=&#34;1-引言工具调用示例&#34;&gt;1. 引言：工具调用示例&lt;/h2&gt;
+&lt;p&gt;工具调用涉及与模型的多次交互，简单来看，工具调用流程包含五个步骤：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;向模型发起请求，并提供可以调用的工具定义及说明&lt;/li&gt;
+&lt;li&gt;接收模型返回的 tool call&lt;/li&gt;
+&lt;li&gt;在应用侧，基于模型的返回结果去真正执行工具&lt;/li&gt;
+&lt;li&gt;将工具执行的结果添加至用户消息列表，再次向模型发起请求&lt;/li&gt;
+&lt;li&gt;接收模型的最终回复（或继续返回更多 tool call ）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;下面是向模型发起“What’s the whether in Paris?”请求的执行流程，完整示例详见 OpenAI &lt;a href=&#34;https://developers.openai.com/api/docs/guides/function-calling&#34;&gt;function calling&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://kkbill.github.io/posts/deep-dive-into-tool-use-in-llm/images/image00.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;从接口层面看，工具调用能力通过独立的参数 tools 传入，虽然它看起来和用户输入（包括 system messages 和 user messages）是分开的，但在真正喂给模型之前，服务端会把这些工具定义序列化成文本，拼接进 prompt。一个完整的 prompt 大致如下（示意图）：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;[系统指令]
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;system prompt...
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;[工具定义]
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;tools
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;[用户消息]
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;messages...
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;em&gt;注：以 Claude Code 为例，其完整的提示词构建可参考 &lt;a href=&#34;https://zhanghandong.github.io/harness-engineering-from-cc-to-ai-coding/part2/ch05.html&#34;&gt;https://zhanghandong.github.io/harness-engineering-from-cc-to-ai-coding/part2/ch05.html&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;从模型的角度，它看到的“工具”和“用户消息”本质上是一回事，都是 token 序列。确切的说，模型根本不区分工具和用户消息，工具选择本质上仍然是普通的文本生成（next-token prediction），只不过生成的内容恰好是“调用某个工具”的结构化文本。&lt;/p&gt;
+&lt;p&gt;那么，用户发起请求时，模型内部究竟发生了什么？&lt;/p&gt;
+&lt;p&gt;事实上，虽然涉及工具调用，但这仍然只是一次普通的前向推理过程，其目标依然是预测下一个 token，没什么特殊的机制。简单来说：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;整段 prompt 被 tokenize，经过多层 transformer 注意力计算；&lt;/li&gt;
+&lt;li&gt;注意力过程中，用户消息“what is the weather in Paris?”中的“weather”等 token 会与工具里的&lt;code&gt;get_whether&lt;/code&gt;描述的 token 产生强关联（语义相近），这种关联是训练阶段学到的。&lt;/li&gt;
+&lt;li&gt;模型计算下一个 token 的概率分布。由于后训练（尤其是针对 tool use 的微调）见过大量“用户提出某类需求 → 输出某工具调用”的样本，因此在这个场景下，直接用自然语言回答的概率被压低，而输出调用 get_whether 工具的结构化片段的概率被抬高。&lt;/li&gt;
+&lt;li&gt;因此，模型逐 token 生成工具名和相应的参数 {&amp;ldquo;location&amp;rdquo;: &amp;ldquo;Paris&amp;rdquo;}，参数值&amp;quot;Paris&amp;quot;则是从用户的输入里“读”出来的。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;所以，选择哪个工具的本质是——在所有候选工具名中，哪个 token 序列的生成概率最高。当含有多个候选工具时，模型通过注意力机制比较用户意图与各个工具描述的匹配度，在概率上倾向最匹配的那个。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Harness Engineering 08. Governance and Security</title>
       <link>https://kkbill.github.io/posts/harness-engineering-08-governance/</link>
