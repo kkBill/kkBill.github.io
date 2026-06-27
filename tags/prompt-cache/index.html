@@ -5,11 +5,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>Categories | kkBill&#39;s Blog</title>
+<title>Prompt Cache | kkBill&#39;s Blog</title>
 <meta name="keywords" content="">
 <meta name="description" content="coding &amp; reading &amp; thinking">
 <meta name="author" content="">
-<link rel="canonical" href="https://kkbill.github.io/categories/">
+<link rel="canonical" href="https://kkbill.github.io/tags/prompt-cache/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.b1d824ada1014af93062abcfcd8cf31e56b31ae35bc08d900f254fa2b0037d17.css" integrity="sha256-sdgkraEBSvkwYqvPzYzzHlazGuNbwI2QDyVPorADfRc=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://kkbill.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://kkbill.github.io/favicon-16x16.png">
@@ -18,8 +18,8 @@
 <link rel="mask-icon" href="https://kkbill.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="https://kkbill.github.io/categories/index.xml" title="rss">
-<link rel="alternate" hreflang="en" href="https://kkbill.github.io/categories/">
+<link rel="alternate" type="application/rss+xml" href="https://kkbill.github.io/tags/prompt-cache/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="https://kkbill.github.io/tags/prompt-cache/">
 <noscript>
     <style>
         #theme-toggle,
@@ -71,15 +71,15 @@
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://kkbill.github.io/categories/">
+</script><meta property="og:url" content="https://kkbill.github.io/tags/prompt-cache/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
-  <meta property="og:title" content="Categories">
+  <meta property="og:title" content="Prompt Cache">
   <meta property="og:description" content="coding &amp; reading &amp; thinking">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="website">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Categories">
+  <meta name="twitter:title" content="Prompt Cache">
   <meta name="twitter:description" content="coding &amp; reading &amp; thinking">
 
 </head>
@@ -129,7 +129,7 @@
             </li>
             <li>
                 <a href="https://kkbill.github.io/categories/" title="Categories">
-                    <span class="active">Categories</span>
+                    <span>Categories</span>
                 </a>
             </li>
             <li>
@@ -140,19 +140,27 @@
         </ul>
     </nav>
 </header>
-<main class="main">
+<main class="main"> 
 <header class="page-header">
-    <h1>Categories</h1>
+  <h1>
+    Prompt Cache
+  </h1>
 </header>
 
-<ul class="terms-tags">
-    <li>
-        <a href="https://kkbill.github.io/categories/agent/">Agent <sup><strong><sup>10</sup></strong></sup> </a>
-    </li>
-    <li>
-        <a href="https://kkbill.github.io/categories/llm/">LLM <sup><strong><sup>2</sup></strong></sup> </a>
-    </li>
-</ul>
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">How Prompt Cache Works
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>在日常的 Agent 开发中，开发者很难直接接触到服务端的 KV Cache。然而，无论是编写 Prompt、控制对话历史的长度，还是设计 Agent 的长程反思循环，其本质都在操纵 KV Cache 的计算与复用。本文旨在系统化拆解 KV Cache 与 Prompt Cache 的工作机制，分析其在多轮对话与 Agent 架构中的应用设计原则，并深入探讨在百万级用户规模下，分布式推理系统在安全性、多级存储管理、以及调度计费上面临的工程权衡。
+1. 核心概念：Prompt Cache 与 KV Cache 1.1 Prompt Cache 与 KV Cache 的区别 要理解大模型推理的成本与时延，首先必须厘清两层性质完全不同的“缓存”概念。它们处于不同的生命周期，服务于不同的系统目的：
+维度 运行时 KV Cache 前缀复用缓存 (Prompt Cache / Prefix Cache) 主体对象 某个正在进行的单次生成请求，独占该内存块 已结束请求留下的、可供后续跨请求复用的前缀 KV 块 存活周期 即时焚毁：随请求开始而创建，随生成结束（吐出 EOS）而彻底释放 持久留存：请求结束后不丢弃，在内存/硬盘中留存一段时间（TTL） 系统目的 维持 Self-Attention 机制的多轮解码，让当前的 Token 生成得以持续 跳过后续相同前缀请求的 Prefill 阶段，直接加载计算结果 核心效益 将自注意力计算复杂度从 O(N^2) 降低到 O(1) 极端优化首字延迟（TTFT）与算力成本 1.2 Prompt Cache 缓存了什么 在 Prefill 阶段，推理引擎将 Prompt 中的每个 Token 转换为 K, V 向量填入缓存。Prompt Cache 做的事情，是在当前请求结束后，将这段已经算好的 KV Cache 留在服务端。下次请求若 Prompt 前缀相同，则直接加载这块 KV，跳过对这段前缀的 prefill。
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-06-27 17:52:52 +0800 CST'>June 27, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
+  <a class="entry-link" aria-label="post link to How Prompt Cache Works" href="https://kkbill.github.io/posts/how-prompt-cache-works/"></a>
+</article>
     </main>
     
 <footer class="footer">

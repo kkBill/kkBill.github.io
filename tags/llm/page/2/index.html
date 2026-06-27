@@ -5,11 +5,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>Categories | kkBill&#39;s Blog</title>
+<title>LLM | kkBill&#39;s Blog</title>
 <meta name="keywords" content="">
 <meta name="description" content="coding &amp; reading &amp; thinking">
 <meta name="author" content="">
-<link rel="canonical" href="https://kkbill.github.io/categories/">
+<link rel="canonical" href="https://kkbill.github.io/tags/llm/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.b1d824ada1014af93062abcfcd8cf31e56b31ae35bc08d900f254fa2b0037d17.css" integrity="sha256-sdgkraEBSvkwYqvPzYzzHlazGuNbwI2QDyVPorADfRc=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://kkbill.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://kkbill.github.io/favicon-16x16.png">
@@ -18,8 +18,8 @@
 <link rel="mask-icon" href="https://kkbill.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="https://kkbill.github.io/categories/index.xml" title="rss">
-<link rel="alternate" hreflang="en" href="https://kkbill.github.io/categories/">
+<link rel="alternate" type="application/rss+xml" href="https://kkbill.github.io/tags/llm/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="https://kkbill.github.io/tags/llm/">
 <noscript>
     <style>
         #theme-toggle,
@@ -71,15 +71,15 @@
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://kkbill.github.io/categories/">
+</script><meta property="og:url" content="https://kkbill.github.io/tags/llm/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
-  <meta property="og:title" content="Categories">
+  <meta property="og:title" content="LLM">
   <meta property="og:description" content="coding &amp; reading &amp; thinking">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="website">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Categories">
+  <meta name="twitter:title" content="LLM">
   <meta name="twitter:description" content="coding &amp; reading &amp; thinking">
 
 </head>
@@ -129,7 +129,7 @@
             </li>
             <li>
                 <a href="https://kkbill.github.io/categories/" title="Categories">
-                    <span class="active">Categories</span>
+                    <span>Categories</span>
                 </a>
             </li>
             <li>
@@ -140,19 +140,38 @@
         </ul>
     </nav>
 </header>
-<main class="main">
+<main class="main"> 
 <header class="page-header">
-    <h1>Categories</h1>
+  <h1>
+    LLM
+  </h1>
 </header>
 
-<ul class="terms-tags">
-    <li>
-        <a href="https://kkbill.github.io/categories/agent/">Agent <sup><strong><sup>10</sup></strong></sup> </a>
-    </li>
-    <li>
-        <a href="https://kkbill.github.io/categories/llm/">LLM <sup><strong><sup>2</sup></strong></sup> </a>
-    </li>
-</ul>
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Harness Engineering 01. Overview
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Harness Engineering 系列文章以 Agent Harness Engineering: A Survey 为基础进行整理。
+Agent = Model &#43; Harness 学术界对 LLM-based Agent 的研究，很大程度上一直是对模型本身的研究。研究主要聚焦于模型能做什么：它是否能跨多步规划、可靠的调用工具、检索并压缩相关记忆，或与其他智能体协调等。其隐含假设是，智能体能力主要取决于模型能力——只要有足够强大的模型和足够好的提示词，就能产生足够可靠的输出。
+然而，最新的研究挑战了”仅靠更好的模型就能产生更可靠的智能体”这一假设。三项最新的研究确定了这一点：
+Bölük (2026) 仅修改了编辑工具的格式和工具 harness，未对模型做任何改动，就在15个模型上实现了编码基准测试高达10倍的提升。 LangChain (2026) 仅通过系统提示词重构、中间件上下文注入和自验证钩子，就将 GPT-5.2-Codex 智能体在 Terminal-Bench 2.0 上的表现从 52.8% 提升至 66.5%——13.7个百分点的提升完全来自基础设施层面的改动。 Meta-Harness (2026) 通过 automated harness 优化，在 Terminal-Bench-2 上达到 76.4%，超越了所有手工设计的方法，且未修改任何模型权重。 以上每种情况，变量都是 harness（即控制上下文构建、工具交互、编排、反馈和执行约束的基础设施层），而模型保持不变。仅靠 harness 优化，就足以实现大幅性能提升，这种模式并非偶然：harness，而非模型本身，是驱动可靠性的关键因素。
+论文将这一模式称为“binding-constraint thesis(约束绑定论)”，即对于长程任务的评估，基准测试的方差可能由 harness 和模型共同驱动。本文以此论题作为后续论述的框架。
+Agent 系统的演进 ReAct 时代(2022–2023)。ReAct 将 observe-think-act loop 确立为一种基础原语。早期系统的基础设施极为精简：一个 while 循环、一个提示模板和一个小型的工具分发表。AutoGPT 和 BabyAGI 展示了通过任务队列、记忆和工具调度来包装语言模型调用以实现完全自主运行的雄心，同时也暴露出执行失控、上下文膨胀、状态丢失等问题。这些并非单纯的提示问题，而是基础设施问题。
+工具集成与多智能体协调(2023–2024)。Gorilla、ToolLLM 和 Toolformer 的研究表明，工具使用能力可以通过学习或引导产生；CAMEL、ChatDev、MetaGPT 和 Mixture-of-Agents 引入了多智能体协调模式，涵盖角色扮演对话、软件开发组织架构以及分层智能体聚合等多种形式；随着 SWE-bench、AgentBench、WebArena 和 GAIA 的推出，evaluation infrastructure（评估基础设施）日趋成熟；协议标准化则以 Anthropic 的 MCP 和 Google 的 A2A 为起点。
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-05-24 21:00:00 +0800 CST'>May 24, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
+  <a class="entry-link" aria-label="post link to Harness Engineering 01. Overview" href="https://kkbill.github.io/posts/harness-engineering-01-overview/"></a>
+</article>
+<footer class="page-footer">
+  <nav class="pagination">
+    <a class="prev" href="https://kkbill.github.io/tags/llm/">
+      «&nbsp;Prev&nbsp;
+    </a>
+  </nav>
+</footer>
     </main>
     
 <footer class="footer">

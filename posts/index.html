@@ -164,6 +164,21 @@
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">How Prompt Cache Works
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>在日常的 Agent 开发中，开发者很难直接接触到服务端的 KV Cache。然而，无论是编写 Prompt、控制对话历史的长度，还是设计 Agent 的长程反思循环，其本质都在操纵 KV Cache 的计算与复用。本文旨在系统化拆解 KV Cache 与 Prompt Cache 的工作机制，分析其在多轮对话与 Agent 架构中的应用设计原则，并深入探讨在百万级用户规模下，分布式推理系统在安全性、多级存储管理、以及调度计费上面临的工程权衡。
+1. 核心概念：Prompt Cache 与 KV Cache 1.1 Prompt Cache 与 KV Cache 的区别 要理解大模型推理的成本与时延，首先必须厘清两层性质完全不同的“缓存”概念。它们处于不同的生命周期，服务于不同的系统目的：
+维度 运行时 KV Cache 前缀复用缓存 (Prompt Cache / Prefix Cache) 主体对象 某个正在进行的单次生成请求，独占该内存块 已结束请求留下的、可供后续跨请求复用的前缀 KV 块 存活周期 即时焚毁：随请求开始而创建，随生成结束（吐出 EOS）而彻底释放 持久留存：请求结束后不丢弃，在内存/硬盘中留存一段时间（TTL） 系统目的 维持 Self-Attention 机制的多轮解码，让当前的 Token 生成得以持续 跳过后续相同前缀请求的 Prefill 阶段，直接加载计算结果 核心效益 将自注意力计算复杂度从 O(N^2) 降低到 O(1) 极端优化首字延迟（TTFT）与算力成本 1.2 Prompt Cache 缓存了什么 在 Prefill 阶段，推理引擎将 Prompt 中的每个 Token 转换为 K, V 向量填入缓存。Prompt Cache 做的事情，是在当前请求结束后，将这段已经算好的 KV Cache 留在服务端。下次请求若 Prompt 前缀相同，则直接加载这块 KV，跳过对这段前缀的 prefill。
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-06-27 17:52:52 +0800 CST'>June 27, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
+  <a class="entry-link" aria-label="post link to How Prompt Cache Works" href="https://kkbill.github.io/posts/how-prompt-cache-works/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">Dive into KV Cache in LLM
     </h2>
   </header>
@@ -328,25 +343,6 @@ Daytona：Daytona is a secure and elastic infrastructure runtime for AI-generate
   </div>
   <footer class="entry-footer"><span title='2026-05-25 21:00:00 +0800 CST'>May 25, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
   <a class="entry-link" aria-label="post link to Harness Engineering 02. Execution Environment" href="https://kkbill.github.io/posts/harness-engineering-02-execution/"></a>
-</article>
-
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">Harness Engineering 01. Overview
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p> Harness Engineering 系列文章以 Agent Harness Engineering: A Survey 为基础进行整理。
-Agent = Model &#43; Harness 学术界对 LLM-based Agent 的研究，很大程度上一直是对模型本身的研究。研究主要聚焦于模型能做什么：它是否能跨多步规划、可靠的调用工具、检索并压缩相关记忆，或与其他智能体协调等。其隐含假设是，智能体能力主要取决于模型能力——只要有足够强大的模型和足够好的提示词，就能产生足够可靠的输出。
-然而，最新的研究挑战了”仅靠更好的模型就能产生更可靠的智能体”这一假设。三项最新的研究确定了这一点：
-Bölük (2026) 仅修改了编辑工具的格式和工具 harness，未对模型做任何改动，就在15个模型上实现了编码基准测试高达10倍的提升。 LangChain (2026) 仅通过系统提示词重构、中间件上下文注入和自验证钩子，就将 GPT-5.2-Codex 智能体在 Terminal-Bench 2.0 上的表现从 52.8% 提升至 66.5%——13.7个百分点的提升完全来自基础设施层面的改动。 Meta-Harness (2026) 通过 automated harness 优化，在 Terminal-Bench-2 上达到 76.4%，超越了所有手工设计的方法，且未修改任何模型权重。 以上每种情况，变量都是 harness（即控制上下文构建、工具交互、编排、反馈和执行约束的基础设施层），而模型保持不变。仅靠 harness 优化，就足以实现大幅性能提升，这种模式并非偶然：harness，而非模型本身，是驱动可靠性的关键因素。
-论文将这一模式称为“binding-constraint thesis(约束绑定论)”，即对于长程任务的评估，基准测试的方差可能由 harness 和模型共同驱动。本文以此论题作为后续论述的框架。
-Agent 系统的演进 ReAct 时代(2022–2023)。ReAct 将 observe-think-act loop 确立为一种基础原语。早期系统的基础设施极为精简：一个 while 循环、一个提示模板和一个小型的工具分发表。AutoGPT 和 BabyAGI 展示了通过任务队列、记忆和工具调度来包装语言模型调用以实现完全自主运行的雄心，同时也暴露出执行失控、上下文膨胀、状态丢失等问题。这些并非单纯的提示问题，而是基础设施问题。
-工具集成与多智能体协调(2023–2024)。Gorilla、ToolLLM 和 Toolformer 的研究表明，工具使用能力可以通过学习或引导产生；CAMEL、ChatDev、MetaGPT 和 Mixture-of-Agents 引入了多智能体协调模式，涵盖角色扮演对话、软件开发组织架构以及分层智能体聚合等多种形式；随着 SWE-bench、AgentBench、WebArena 和 GAIA 的推出，evaluation infrastructure（评估基础设施）日趋成熟；协议标准化则以 Anthropic 的 MCP 和 Google 的 A2A 为起点。
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2026-05-24 21:00:00 +0800 CST'>May 24, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
-  <a class="entry-link" aria-label="post link to Harness Engineering 01. Overview" href="https://kkbill.github.io/posts/harness-engineering-01-overview/"></a>
 </article>
 <footer class="page-footer">
   <nav class="pagination">

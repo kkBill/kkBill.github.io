@@ -6,27 +6,41 @@
     <description>Recent content in Tags on kkBill&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 27 Jun 2026 17:47:41 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 27 Jun 2026 17:52:52 +0800</lastBuildDate>
     <atom:link href="https://kkbill.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Agent</title>
+      <link>https://kkbill.github.io/tags/agent/</link>
+      <pubDate>Sat, 27 Jun 2026 17:52:52 +0800</pubDate>
+      <guid>https://kkbill.github.io/tags/agent/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Inference</title>
+      <link>https://kkbill.github.io/tags/inference/</link>
+      <pubDate>Sat, 27 Jun 2026 17:52:52 +0800</pubDate>
+      <guid>https://kkbill.github.io/tags/inference/</guid>
+      <description></description>
+    </item>
     <item>
       <title>KV Cache</title>
       <link>https://kkbill.github.io/tags/kv-cache/</link>
-      <pubDate>Sat, 27 Jun 2026 17:47:41 +0800</pubDate>
+      <pubDate>Sat, 27 Jun 2026 17:52:52 +0800</pubDate>
       <guid>https://kkbill.github.io/tags/kv-cache/</guid>
       <description></description>
     </item>
     <item>
       <title>LLM</title>
       <link>https://kkbill.github.io/tags/llm/</link>
-      <pubDate>Sat, 27 Jun 2026 17:47:41 +0800</pubDate>
+      <pubDate>Sat, 27 Jun 2026 17:52:52 +0800</pubDate>
       <guid>https://kkbill.github.io/tags/llm/</guid>
       <description></description>
     </item>
     <item>
-      <title>Agent</title>
-      <link>https://kkbill.github.io/tags/agent/</link>
-      <pubDate>Sat, 20 Jun 2026 10:00:00 +0800</pubDate>
-      <guid>https://kkbill.github.io/tags/agent/</guid>
+      <title>Prompt Cache</title>
+      <link>https://kkbill.github.io/tags/prompt-cache/</link>
+      <pubDate>Sat, 27 Jun 2026 17:52:52 +0800</pubDate>
+      <guid>https://kkbill.github.io/tags/prompt-cache/</guid>
       <description></description>
     </item>
     <item>

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>How Prompt Cache Works | kkBill&#39;s Blog</title>
+<meta name="keywords" content="LLM, KV Cache, Prompt Cache, Agent, Inference">
+<meta name="description" content="在日常的 Agent 开发中，开发者很难直接接触到服务端的 KV Cache。然而，无论是编写 Prompt、控制对话历史的长度，还是设计 Agent 的长程反思循环，其本质都在操纵 KV Cache 的计算与复用。本文旨在系统化拆解 KV Cache 与 Prompt Cache 的工作机制，分析其在多轮对话与 Agent 架构中的应用设计原则，并深入探讨在百万级用户规模下，分布式推理系统在安全性、多级存储管理、以及调度计费上面临的工程权衡。
+1. 核心概念：Prompt Cache 与 KV Cache
+1.1 Prompt Cache 与 KV Cache 的区别
+要理解大模型推理的成本与时延，首先必须厘清两层性质完全不同的“缓存”概念。它们处于不同的生命周期，服务于不同的系统目的：
+
+  
+      
+          维度
+          运行时 KV Cache
+          前缀复用缓存 (Prompt Cache / Prefix Cache)
+      
+  
+  
+      
+          主体对象
+          某个正在进行的单次生成请求，独占该内存块
+          已结束请求留下的、可供后续跨请求复用的前缀 KV 块
+      
+      
+          存活周期
+          即时焚毁：随请求开始而创建，随生成结束（吐出 EOS）而彻底释放
+          持久留存：请求结束后不丢弃，在内存/硬盘中留存一段时间（TTL）
+      
+      
+          系统目的
+          维持 Self-Attention 机制的多轮解码，让当前的 Token 生成得以持续
+          跳过后续相同前缀请求的 Prefill 阶段，直接加载计算结果
+      
+      
+          核心效益
+          将自注意力计算复杂度从 O(N^2) 降低到 O(1)
+          极端优化首字延迟（TTFT）与算力成本
+      
+  
+
+1.2 Prompt Cache 缓存了什么
+在 Prefill 阶段，推理引擎将 Prompt 中的每个 Token 转换为 K, V 向量填入缓存。Prompt Cache 做的事情，是在当前请求结束后，将这段已经算好的 KV Cache 留在服务端。下次请求若 Prompt 前缀相同，则直接加载这块 KV，跳过对这段前缀的 prefill。">
+<meta name="author" content="kkBill">
+<link rel="canonical" href="https://kkbill.github.io/posts/how-prompt-cache-works/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b1d824ada1014af93062abcfcd8cf31e56b31ae35bc08d900f254fa2b0037d17.css" integrity="sha256-sdgkraEBSvkwYqvPzYzzHlazGuNbwI2QDyVPorADfRc=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://kkbill.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://kkbill.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://kkbill.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://kkbill.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://kkbill.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://kkbill.github.io/posts/how-prompt-cache-works/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://kkbill.github.io/posts/how-prompt-cache-works/">
+  <meta property="og:site_name" content="kkBill&#39;s Blog">
+  <meta property="og:title" content="How Prompt Cache Works">
+  <meta property="og:description" content="在日常的 Agent 开发中，开发者很难直接接触到服务端的 KV Cache。然而，无论是编写 Prompt、控制对话历史的长度，还是设计 Agent 的长程反思循环，其本质都在操纵 KV Cache 的计算与复用。本文旨在系统化拆解 KV Cache 与 Prompt Cache 的工作机制，分析其在多轮对话与 Agent 架构中的应用设计原则，并深入探讨在百万级用户规模下，分布式推理系统在安全性、多级存储管理、以及调度计费上面临的工程权衡。
+1. 核心概念：Prompt Cache 与 KV Cache 1.1 Prompt Cache 与 KV Cache 的区别 要理解大模型推理的成本与时延，首先必须厘清两层性质完全不同的“缓存”概念。它们处于不同的生命周期，服务于不同的系统目的：
+维度 运行时 KV Cache 前缀复用缓存 (Prompt Cache / Prefix Cache) 主体对象 某个正在进行的单次生成请求，独占该内存块 已结束请求留下的、可供后续跨请求复用的前缀 KV 块 存活周期 即时焚毁：随请求开始而创建，随生成结束（吐出 EOS）而彻底释放 持久留存：请求结束后不丢弃，在内存/硬盘中留存一段时间（TTL） 系统目的 维持 Self-Attention 机制的多轮解码，让当前的 Token 生成得以持续 跳过后续相同前缀请求的 Prefill 阶段，直接加载计算结果 核心效益 将自注意力计算复杂度从 O(N^2) 降低到 O(1) 极端优化首字延迟（TTFT）与算力成本 1.2 Prompt Cache 缓存了什么 在 Prefill 阶段，推理引擎将 Prompt 中的每个 Token 转换为 K, V 向量填入缓存。Prompt Cache 做的事情，是在当前请求结束后，将这段已经算好的 KV Cache 留在服务端。下次请求若 Prompt 前缀相同，则直接加载这块 KV，跳过对这段前缀的 prefill。">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-06-27T17:52:52+08:00">
+    <meta property="article:modified_time" content="2026-06-27T17:52:52+08:00">
+    <meta property="article:tag" content="LLM">
+    <meta property="article:tag" content="KV Cache">
+    <meta property="article:tag" content="Prompt Cache">
+    <meta property="article:tag" content="Agent">
+    <meta property="article:tag" content="Inference">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="How Prompt Cache Works">
+  <meta name="twitter:description" content="在日常的 Agent 开发中，开发者很难直接接触到服务端的 KV Cache。然而，无论是编写 Prompt、控制对话历史的长度，还是设计 Agent 的长程反思循环，其本质都在操纵 KV Cache 的计算与复用。本文旨在系统化拆解 KV Cache 与 Prompt Cache 的工作机制，分析其在多轮对话与 Agent 架构中的应用设计原则，并深入探讨在百万级用户规模下，分布式推理系统在安全性、多级存储管理、以及调度计费上面临的工程权衡。
+1. 核心概念：Prompt Cache 与 KV Cache 1.1 Prompt Cache 与 KV Cache 的区别 要理解大模型推理的成本与时延，首先必须厘清两层性质完全不同的“缓存”概念。它们处于不同的生命周期，服务于不同的系统目的：
+维度 运行时 KV Cache 前缀复用缓存 (Prompt Cache / Prefix Cache) 主体对象 某个正在进行的单次生成请求，独占该内存块 已结束请求留下的、可供后续跨请求复用的前缀 KV 块 存活周期 即时焚毁：随请求开始而创建，随生成结束（吐出 EOS）而彻底释放 持久留存：请求结束后不丢弃，在内存/硬盘中留存一段时间（TTL） 系统目的 维持 Self-Attention 机制的多轮解码，让当前的 Token 生成得以持续 跳过后续相同前缀请求的 Prefill 阶段，直接加载计算结果 核心效益 将自注意力计算复杂度从 O(N^2) 降低到 O(1) 极端优化首字延迟（TTFT）与算力成本 1.2 Prompt Cache 缓存了什么 在 Prefill 阶段，推理引擎将 Prompt 中的每个 Token 转换为 K, V 向量填入缓存。Prompt Cache 做的事情，是在当前请求结束后，将这段已经算好的 KV Cache 留在服务端。下次请求若 Prompt 前缀相同，则直接加载这块 KV，跳过对这段前缀的 prefill。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://kkbill.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "How Prompt Cache Works",
+      "item": "https://kkbill.github.io/posts/how-prompt-cache-works/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How Prompt Cache Works",
+  "name": "How Prompt Cache Works",
+  "description": "在日常的 Agent 开发中，开发者很难直接接触到服务端的 KV Cache。然而，无论是编写 Prompt、控制对话历史的长度，还是设计 Agent 的长程反思循环，其本质都在操纵 KV Cache 的计算与复用。本文旨在系统化拆解 KV Cache 与 Prompt Cache 的工作机制，分析其在多轮对话与 Agent 架构中的应用设计原则，并深入探讨在百万级用户规模下，分布式推理系统在安全性、多级存储管理、以及调度计费上面临的工程权衡。\n1. 核心概念：Prompt Cache 与 KV Cache 1.1 Prompt Cache 与 KV Cache 的区别 要理解大模型推理的成本与时延，首先必须厘清两层性质完全不同的“缓存”概念。它们处于不同的生命周期，服务于不同的系统目的：\n维度 运行时 KV Cache 前缀复用缓存 (Prompt Cache / Prefix Cache) 主体对象 某个正在进行的单次生成请求，独占该内存块 已结束请求留下的、可供后续跨请求复用的前缀 KV 块 存活周期 即时焚毁：随请求开始而创建，随生成结束（吐出 EOS）而彻底释放 持久留存：请求结束后不丢弃，在内存/硬盘中留存一段时间（TTL） 系统目的 维持 Self-Attention 机制的多轮解码，让当前的 Token 生成得以持续 跳过后续相同前缀请求的 Prefill 阶段，直接加载计算结果 核心效益 将自注意力计算复杂度从 O(N^2) 降低到 O(1) 极端优化首字延迟（TTFT）与算力成本 1.2 Prompt Cache 缓存了什么 在 Prefill 阶段，推理引擎将 Prompt 中的每个 Token 转换为 K, V 向量填入缓存。Prompt Cache 做的事情，是在当前请求结束后，将这段已经算好的 KV Cache 留在服务端。下次请求若 Prompt 前缀相同，则直接加载这块 KV，跳过对这段前缀的 prefill。\n",
+  "keywords": [
+    "LLM", "KV Cache", "Prompt Cache", "Agent", "Inference"
+  ],
+  "articleBody": "在日常的 Agent 开发中，开发者很难直接接触到服务端的 KV Cache。然而，无论是编写 Prompt、控制对话历史的长度，还是设计 Agent 的长程反思循环，其本质都在操纵 KV Cache 的计算与复用。本文旨在系统化拆解 KV Cache 与 Prompt Cache 的工作机制，分析其在多轮对话与 Agent 架构中的应用设计原则，并深入探讨在百万级用户规模下，分布式推理系统在安全性、多级存储管理、以及调度计费上面临的工程权衡。\n1. 核心概念：Prompt Cache 与 KV Cache 1.1 Prompt Cache 与 KV Cache 的区别 要理解大模型推理的成本与时延，首先必须厘清两层性质完全不同的“缓存”概念。它们处于不同的生命周期，服务于不同的系统目的：\n维度 运行时 KV Cache 前缀复用缓存 (Prompt Cache / Prefix Cache) 主体对象 某个正在进行的单次生成请求，独占该内存块 已结束请求留下的、可供后续跨请求复用的前缀 KV 块 存活周期 即时焚毁：随请求开始而创建，随生成结束（吐出 EOS）而彻底释放 持久留存：请求结束后不丢弃，在内存/硬盘中留存一段时间（TTL） 系统目的 维持 Self-Attention 机制的多轮解码，让当前的 Token 生成得以持续 跳过后续相同前缀请求的 Prefill 阶段，直接加载计算结果 核心效益 将自注意力计算复杂度从 O(N^2) 降低到 O(1) 极端优化首字延迟（TTFT）与算力成本 1.2 Prompt Cache 缓存了什么 在 Prefill 阶段，推理引擎将 Prompt 中的每个 Token 转换为 K, V 向量填入缓存。Prompt Cache 做的事情，是在当前请求结束后，将这段已经算好的 KV Cache 留在服务端。下次请求若 Prompt 前缀相同，则直接加载这块 KV，跳过对这段前缀的 prefill。\n1 2 3 4 5 6 7 - 首次请求 [系统指令][工具定义][对话历史] → 完整进行 Prefill 计算 → 生成 KV 矩阵并持久化存储 - 后续请求 [完全相同的前缀.............] + [新增用户问题] ↑ ↑ 命中缓存,KV直接加载,跳过prefill 只需prefill这一小段 关键推论：Prompt Cache 不省 Decode 的算力，输出 Token 依旧需要逐字生成并全价计费。它优化的是 Prefill 阶段，若命中相同前缀的 Prompt，可以直接加载对应的 K, V 矩阵，直接优化 TTFT（首字响应时间），对“长输入、短输出、高频复用”的场景收益最大。\n2. 为什么命中规则是前缀匹配 在工程实践中，Prompt Cache 的命中规则被严格限制为“连续前缀匹配”。这是由注意力机制的因果性（Causality）决定的物理必然。\n在 Decoder-Only 架构中，每个 Token 的 K, V 向量不仅由其自身决定，还唯一依赖于其左侧所有的 Token 序列。一旦前面的任何一个 Token 发生改变，从该位置往后的所有自注意力都会发生扰动，导致后续的 K, V 矩阵全部作废。\n1 2 3 【缓存内容】： A B C D E F G 【本次请求】： A B C X ... └─ 第4个Token发生错配，D及后续token的KV缓存全部失效，必须重算 基于前缀匹配的物理特性，Prompt 的排列组合必须遵循“稳定前置，动态后置”的架构原则。\n✅ 正确范式（最大化缓存命中）\n1 2 [系统指令] [工具定义] [Few-shot 示例] [静态文档] │ [动态对话历史] [本轮用户输入] └──────────────── 跨请求完全稳定不变 ──────────┘ └───── 每次动态变化 ──────┘ ❌ 错误范式（导致缓存全盘击穿）\n1 2 [当前时间戳/UUID] [系统指令] [工具定义] ... └─ 开头引入动态变量，导致后续的所有静态上下文缓存瞬间蒸发 ─┘ 3. 由 Prompt Cache 引出的 Agent 设计原则 多轮对话与 Agent 的 ReAct 循环，是 Prompt Cache 的最佳天然搭档。因为从本质上看，对话历史与工具状态的演进，表现为“只增不改的前缀账本”。\n在一个标准的 Agent 任务中，上下文随着步骤呈滚雪球式增长：\n1 2 3 4 5 Step 1: [system+tools+msgs] → thought_1+tool_call_1 Step 2: [system+tools+msgs] + [thought_1+tool_call_1] + [tool_result_1] → thought_2... 在没有 Prefix Cache 的传统推理中，每次请求都需要对越来越长的历史进行重复的 Prefill 计算（造成二次方级的算力浪费）；而开启缓存后，每次迭代仅需对新增的 [Tool Result] 进行增量 Prefill，Agent 的任务步数越多，缓存带来的成本与时延优势越大。\n为了在复杂的 Agent 开发中守住缓存命中率，开发者必须遵守以下三条硬性原则：\n工具定义(Tools Schema)静态化：将包含海量 JSON schema 的工具描述置于最前，应尽量避免在运行中动态增删工具，防止全盘击穿。 工具返回结果的“字面确定性”：确保相同输入的工具返回内容在文本层面完全一致。若返回的 JSON 内部带有随机排序（比如，map的返回结果不保证严格有序）或非必要的辅助性元数据（比如 queried_at 细粒度时间戳），虽然单次会话内已固化的历史不受影响，但会破坏跨请求/跨任务之间的缓存复用。 警惕“中间插入/改写历史”：任何中间插入都会令插入点之后的所有 KV 缓存作废。因此，严禁在历史上下文的中间（如多轮对话中央）动态插入 RAG 的召回片段。再比如，为了省 Token ，会在上下文变长后把前面几轮内容做摘要并替换掉原文，这会导致后面全部缓存失效。压缩历史能省 Token，但会牺牲缓存命中，因此要权衡。 4. 工业级大规模推理服务的工程权衡 当视角切换到服务上亿用户的云端推理平台（如 OpenAI、DeepSeek、vLLM 自建集群）时，管理海量并发下的 KV Cache 演变为一场关于安全性、内存容量以及硬件调度的极限游戏。\n在推理服务端，是如何做缓存的呢？尤其是针对不同用户的请求，彼此之间不会混淆搞串了吗？假设用户A命中了用户B的cache，那不就涉及到了信息泄露等问题？用户量如此之大，推理服务端又是如何存下所有用户的缓存呢？等等。即，KV Cache/Prompt Cache 在真实的工程视角下，涉及数据安全、容量、调度、计费等一整套工程权衡。\n4.1 安全屏障 1、内容寻址（Content-Addressing）的安全性\n在服务端，系统通过对前缀 Token 序列进行哈希计算来生成唯一键（Cache Key）：\n$$ \\text{Cache Key} = \\text{Hash}(\\text{prefix_tokens}) $$\n从数学上看，用户 A 想要命中用户 B 的缓存，其前缀必须与 B 逐字完全等价。既然内容完全一致，其对应的 KV 矩阵即为确定性计算结果，因此复用缓存并不存在“读取到他人私密数据”的直接数据泄露风险。\n2、隐蔽的时序侧信道风险 (Timing Side-Channel)\n尽管内容无法被直接窥探，但由于“命中缓存的首字时延远快于未命中”，攻击者可以通过高精度时间探测，推断出其他用户是否输入过相同的敏感内容：\n1 2 3 攻击者构造特定敏感前缀 ──\u003e 提交至通用大模型 API ──\u003e 测量 TTFT ├──\u003e TTFT极短（毫秒级）──\u003e 判定该敏感事件/商业机密 prompt 近期被他人频繁调用 ──\u003e 隐性情报泄露 └──\u003e TTFT正常（数百毫秒）──\u003e 判定近期无人调用 3、工业级防御方案\n为了彻底绝绝此类侧信道探测，主流云厂商采用了按组织/租户强隔离的命名空间机制：\n$$ \\text{Cache Key} = \\text{Hash}( \\text{org_id}+\\text{prefix_tokens}) $$\n通过引入 Org_ID，纵使不同组织的用户输入了完全相同的系统提示词或敏感文本，其哈希键也绝不交叠。虽然这牺牲了部分公共前缀的全局复用率，但保障了企业级数据的绝对安全。\n4.2 容量决策 1、分层缓存架构\n大模型（如 70B 及以上参数模型）的 KV Cache 体积巨大。在有限的硬件预算下，无节制地留存所有前缀是不可能的。工业界普遍采用分层缓存架构。\nDeepSeek 引入磁盘级 Context Cache 方案，不仅大幅降低存储成本，在性能方面，即使存在 SSD I/O 延迟，128K 请求的 TTFT 仍从 13s 降至 500ms，远快于重新 Prefill。\n2、驱逐策略与动态淘汰\n当各级存储空间触及水位线时，系统启动自动淘汰：\nLRU（最近最少使用）：优先剔除最久未被命中的前缀。 TTL（生存时间生存期）机制：为缓存强制设定过期窗口（例如 Anthropic 默认的 5 分钟）。到期即焚，在释放空间的同时，也大幅收窄了侧信道攻击的暴露窗口。 4.3 调度优化 为了让海量请求在同一个 GPU 节点上高效并行，现代推理引擎（如 vLLM）在底层实现了虚拟内存管理。\nPagedAttention 消除碎片：传统显存分配会为请求预留连续的、最大可能长度的空间，造成高达 60%-80% 的内存碎片。PagedAttention 将 KV Cache 切碎为固定大小的“物理块（Blocks）”，允许非连续存放，通过块表映射逻辑顺序，实现物理块的“写时复制（Copy-on-Write）”，这也是 Prefix Cache 实现多请求安全共享同一段内存的底层基石。 连续批处理（Continuous Batching）：在解码阶段，将数十个不同用户的请求动态打包进同一个计算 Batch。批处理打包的是计算指令，而各请求的 KV Cache 在内存物理块上依然强隔离。 Prefill/Decode 分离：两阶段资源特征冲突（compute-bound vs. memory-bound），大厂常用不同 GPU 池分别处理，各自优化，互不干扰彼此的延迟。 Chunked Prefill：超长 prompt 的 prefill 切块，和别人的 decode 穿插执行，避免一个长请求把其他用户的吐字卡住。 5. 再看大模型 API 计费结构 看懂了服务端的 KV Cache 分层与调度，便能完全看透各大主流大模型 API 账单的定价逻辑：\nCache Write：按标准输入计费，或因需要执行额外的存储持久化操作，部分平台会收取微小的存储溢价。 Cache Read / Cache Hit：由于免去了昂贵的 Prefill 阶段硬件算力，平台得以让利开发者。 Output Token：维持全价。因为不管前缀如何复用，自回归解码阶段必须踏踏实实地逐字计算、搬运模型权重，没有任何捷径可走。 以下是 DeepSeek API 定价，数据源自 https://api-docs.deepseek.com/quick_start/pricing\n",
+  "wordCount" : "434",
+  "inLanguage": "en",
+  "datePublished": "2026-06-27T17:52:52+08:00",
+  "dateModified": "2026-06-27T17:52:52+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "kkBill"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://kkbill.github.io/posts/how-prompt-cache-works/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "kkBill's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://kkbill.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://kkbill.github.io/" accesskey="h" title="kkBill&#39;s Blog (Alt + H)">kkBill&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://kkbill.github.io/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/archives/" title="Archives">
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://kkbill.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      How Prompt Cache Works
+    </h1>
+    <div class="post-meta"><span title='2026-06-27 17:52:52 +0800 CST'>June 27, 2026</span>&nbsp;·&nbsp;<span>kkBill</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#1-%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5prompt-cache-%e4%b8%8e-kv-cache" aria-label="1. 核心概念：Prompt Cache 与 KV Cache">1. 核心概念：Prompt Cache 与 KV Cache</a><ul>
+                        
+                <li>
+                    <a href="#11-prompt-cache-%e4%b8%8e-kv-cache-%e7%9a%84%e5%8c%ba%e5%88%ab" aria-label="1.1 Prompt Cache 与 KV Cache 的区别">1.1 Prompt Cache 与 KV Cache 的区别</a></li>
+                <li>
+                    <a href="#12-prompt-cache-%e7%bc%93%e5%ad%98%e4%ba%86%e4%bb%80%e4%b9%88" aria-label="1.2 Prompt Cache 缓存了什么">1.2 Prompt Cache 缓存了什么</a></li></ul>
+                </li>
+                <li>
+                    <a href="#2-%e4%b8%ba%e4%bb%80%e4%b9%88%e5%91%bd%e4%b8%ad%e8%a7%84%e5%88%99%e6%98%af%e5%89%8d%e7%bc%80%e5%8c%b9%e9%85%8d" aria-label="2. 为什么命中规则是前缀匹配">2. 为什么命中规则是前缀匹配</a></li>
+                <li>
+                    <a href="#3-%e7%94%b1-prompt-cache-%e5%bc%95%e5%87%ba%e7%9a%84-agent-%e8%ae%be%e8%ae%a1%e5%8e%9f%e5%88%99" aria-label="3. 由 Prompt Cache 引出的 Agent 设计原则">3. 由 Prompt Cache 引出的 Agent 设计原则</a></li>
+                <li>
+                    <a href="#4-%e5%b7%a5%e4%b8%9a%e7%ba%a7%e5%a4%a7%e8%a7%84%e6%a8%a1%e6%8e%a8%e7%90%86%e6%9c%8d%e5%8a%a1%e7%9a%84%e5%b7%a5%e7%a8%8b%e6%9d%83%e8%a1%a1" aria-label="4. 工业级大规模推理服务的工程权衡">4. 工业级大规模推理服务的工程权衡</a><ul>
+                        
+                <li>
+                    <a href="#41-%e5%ae%89%e5%85%a8%e5%b1%8f%e9%9a%9c" aria-label="4.1 安全屏障">4.1 安全屏障</a></li>
+                <li>
+                    <a href="#42-%e5%ae%b9%e9%87%8f%e5%86%b3%e7%ad%96" aria-label="4.2 容量决策">4.2 容量决策</a></li>
+                <li>
+                    <a href="#43-%e8%b0%83%e5%ba%a6%e4%bc%98%e5%8c%96" aria-label="4.3 调度优化">4.3 调度优化</a></li></ul>
+                </li>
+                <li>
+                    <a href="#5-%e5%86%8d%e7%9c%8b%e5%a4%a7%e6%a8%a1%e5%9e%8b-api-%e8%ae%a1%e8%b4%b9%e7%bb%93%e6%9e%84" aria-label="5. 再看大模型 API 计费结构">5. 再看大模型 API 计费结构</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>在日常的 Agent 开发中，开发者很难直接接触到服务端的 KV Cache。然而，无论是编写 Prompt、控制对话历史的长度，还是设计 Agent 的长程反思循环，其本质都在操纵 KV Cache 的计算与复用。本文旨在系统化拆解 KV Cache 与 Prompt Cache 的工作机制，分析其在多轮对话与 Agent 架构中的应用设计原则，并深入探讨在百万级用户规模下，分布式推理系统在安全性、多级存储管理、以及调度计费上面临的工程权衡。</p>
+<h2 id="1-核心概念prompt-cache-与-kv-cache">1. 核心概念：Prompt Cache 与 KV Cache<a hidden class="anchor" aria-hidden="true" href="#1-核心概念prompt-cache-与-kv-cache">#</a></h2>
+<h3 id="11-prompt-cache-与-kv-cache-的区别">1.1 Prompt Cache 与 KV Cache 的区别<a hidden class="anchor" aria-hidden="true" href="#11-prompt-cache-与-kv-cache-的区别">#</a></h3>
+<p>要理解大模型推理的成本与时延，首先必须厘清两层性质完全不同的“缓存”概念。它们处于不同的生命周期，服务于不同的系统目的：</p>
+<table>
+  <thead>
+      <tr>
+          <th><strong>维度</strong></th>
+          <th><strong>运行时 KV Cache</strong></th>
+          <th><strong>前缀复用缓存 (Prompt Cache / Prefix Cache)</strong></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>主体对象</strong></td>
+          <td>某个正在进行的单次生成请求，独占该内存块</td>
+          <td>已结束请求留下的、可供后续跨请求复用的前缀 KV 块</td>
+      </tr>
+      <tr>
+          <td><strong>存活周期</strong></td>
+          <td><strong>即时焚毁</strong>：随请求开始而创建，随生成结束（吐出 EOS）而彻底释放</td>
+          <td><strong>持久留存</strong>：请求结束后不丢弃，在内存/硬盘中留存一段时间（TTL）</td>
+      </tr>
+      <tr>
+          <td><strong>系统目的</strong></td>
+          <td>维持 Self-Attention 机制的多轮解码，让当前的 Token 生成得以持续</td>
+          <td>跳过后续相同前缀请求的 <strong>Prefill</strong> 阶段，直接加载计算结果</td>
+      </tr>
+      <tr>
+          <td><strong>核心效益</strong></td>
+          <td>将自注意力计算复杂度从 O(N^2) 降低到 O(1)</td>
+          <td>极端优化首字延迟（TTFT）与算力成本</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="12-prompt-cache-缓存了什么">1.2 Prompt Cache 缓存了什么<a hidden class="anchor" aria-hidden="true" href="#12-prompt-cache-缓存了什么">#</a></h3>
+<p>在 Prefill 阶段，推理引擎将 Prompt 中的每个 Token 转换为 K, V 向量填入缓存。Prompt Cache 做的事情，是在当前请求结束后，<strong>将这段已经算好的 KV Cache 留在服务端</strong>。下次请求若 Prompt 前缀相同，则直接加载这块 KV，跳过对这段前缀的 prefill。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">- 首次请求
+</span></span><span class="line"><span class="cl">[系统指令][工具定义][对话历史] → 完整进行 Prefill 计算 → 生成 KV 矩阵并持久化存储
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">- 后续请求
+</span></span><span class="line"><span class="cl">[完全相同的前缀.............] + [新增用户问题]
+</span></span><span class="line"><span class="cl">         ↑                          ↑
+</span></span><span class="line"><span class="cl">命中缓存,KV直接加载,跳过prefill  只需prefill这一小段
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>关键推论</strong>：Prompt Cache 不省 Decode 的算力，输出 Token 依旧需要逐字生成并全价计费。它优化的是 Prefill 阶段，若命中相同前缀的 Prompt，可以直接加载对应的 K, V 矩阵，直接优化 TTFT（首字响应时间），对“长输入、短输出、高频复用”的场景收益最大。</p>
+<h2 id="2-为什么命中规则是前缀匹配">2. 为什么命中规则是前缀匹配<a hidden class="anchor" aria-hidden="true" href="#2-为什么命中规则是前缀匹配">#</a></h2>
+<p>在工程实践中，Prompt Cache 的命中规则被严格限制为“连续前缀匹配”<strong>。这是由注意力机制的因果性（Causality）决定的物理必然</strong>。</p>
+<p>在 Decoder-Only 架构中，每个 Token 的 K, V 向量不仅由其自身决定，还<strong>唯一依赖于其左侧所有的 Token 序列</strong>。一旦前面的任何一个 Token 发生改变，从该位置往后的所有自注意力都会发生扰动，导致后续的 K, V 矩阵全部作废。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="err">【</span><span class="n">缓存内容</span><span class="err">】：</span> <span class="n">A</span>  <span class="n">B</span>  <span class="n">C</span>  <span class="n">D</span>  <span class="n">E</span>  <span class="n">F</span>  <span class="n">G</span>
+</span></span><span class="line"><span class="cl"><span class="err">【</span><span class="n">本次请求</span><span class="err">】：</span> <span class="n">A</span>  <span class="n">B</span>  <span class="n">C</span>  <span class="n">X</span>  <span class="o">...</span>
+</span></span><span class="line"><span class="cl">                         <span class="err">└─</span> <span class="n">第4个Token发生错配</span><span class="err">，</span><span class="n">D及后续token的KV缓存全部失效</span><span class="err">，</span><span class="n">必须重算</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>基于前缀匹配的物理特性，Prompt 的排列组合必须遵循“稳定前置，动态后置”的架构原则。</p>
+<p><strong>✅ 正确范式（最大化缓存命中）</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="p">[</span><span class="n">系统指令</span><span class="p">]</span> <span class="p">[</span><span class="n">工具定义</span><span class="p">]</span> <span class="p">[</span><span class="n">Few</span><span class="o">-</span><span class="n">shot</span> <span class="n">示例</span><span class="p">]</span> <span class="p">[</span><span class="n">静态文档</span><span class="p">]</span> <span class="err">│</span> <span class="p">[</span><span class="n">动态对话历史</span><span class="p">]</span> <span class="p">[</span><span class="n">本轮用户输入</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="err">└────────────────</span> <span class="n">跨请求完全稳定不变</span> <span class="err">──────────┘</span> <span class="err">└─────</span> <span class="n">每次动态变化</span> <span class="err">──────┘</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>❌ 错误范式（导致缓存全盘击穿）</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="p">[</span><span class="n">当前时间戳</span><span class="o">/</span><span class="n">UUID</span><span class="p">]</span> <span class="p">[</span><span class="n">系统指令</span><span class="p">]</span> <span class="p">[</span><span class="n">工具定义</span><span class="p">]</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="err">└─</span> <span class="n">开头引入动态变量</span><span class="err">，</span><span class="n">导致后续的所有静态上下文缓存瞬间蒸发</span> <span class="err">─┘</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="3-由-prompt-cache-引出的-agent-设计原则">3. 由 Prompt Cache 引出的 Agent 设计原则<a hidden class="anchor" aria-hidden="true" href="#3-由-prompt-cache-引出的-agent-设计原则">#</a></h2>
+<p>多轮对话与 Agent 的 ReAct 循环，是 Prompt Cache 的最佳天然搭档。因为从本质上看，对话历史与工具状态的演进，表现为“只增不改的前缀账本”。</p>
+<p>在一个标准的 Agent 任务中，上下文随着步骤呈滚雪球式增长：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">Step</span> <span class="mi">1</span><span class="p">:</span> 
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="n">system</span><span class="o">+</span><span class="n">tools</span><span class="o">+</span><span class="n">msgs</span><span class="p">]</span> <span class="err">→</span> <span class="n">thought_1</span><span class="o">+</span><span class="n">tool_call_1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Step</span> <span class="mi">2</span><span class="p">:</span> 
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="n">system</span><span class="o">+</span><span class="n">tools</span><span class="o">+</span><span class="n">msgs</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">thought_1</span><span class="o">+</span><span class="n">tool_call_1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">tool_result_1</span><span class="p">]</span> <span class="err">→</span> <span class="n">thought_2</span><span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在没有 Prefix Cache 的传统推理中，每次请求都需要对越来越长的历史进行重复的 Prefill 计算（造成二次方级的算力浪费）；而开启缓存后，每次迭代仅需对新增的 [Tool Result] 进行增量 Prefill，Agent 的任务步数越多，缓存带来的成本与时延优势越大。</p>
+<p>为了在复杂的 Agent 开发中守住缓存命中率，开发者必须遵守以下三条硬性原则：</p>
+<ol>
+<li><strong>工具定义(Tools Schema)静态化</strong>：将包含海量 JSON schema 的工具描述置于最前，应尽量避免在运行中动态增删工具，防止全盘击穿。</li>
+<li><strong>工具返回结果的“字面确定性”</strong>：确保相同输入的工具返回内容在文本层面完全一致。若返回的 JSON 内部带有随机排序（比如，map的返回结果不保证严格有序）或非必要的辅助性元数据（比如 <code>queried_at</code> 细粒度时间戳），虽然单次会话内已固化的历史不受影响，但会破坏跨请求/跨任务之间的缓存复用。</li>
+<li><strong>警惕“中间插入/改写历史”</strong>：任何中间插入都会令插入点之后的所有 KV 缓存作废。因此，严禁在历史上下文的中间（如多轮对话中央）动态插入 RAG 的召回片段。再比如，为了省 Token ，会在上下文变长后把前面几轮内容做摘要并替换掉原文，这会导致后面全部缓存失效。压缩历史能省 Token，但会牺牲缓存命中，因此要权衡。</li>
+</ol>
+<h2 id="4-工业级大规模推理服务的工程权衡">4. 工业级大规模推理服务的工程权衡<a hidden class="anchor" aria-hidden="true" href="#4-工业级大规模推理服务的工程权衡">#</a></h2>
+<p>当视角切换到服务上亿用户的云端推理平台（如 OpenAI、DeepSeek、vLLM 自建集群）时，管理海量并发下的 KV Cache 演变为一场关于安全性、内存容量以及硬件调度的极限游戏。</p>
+<blockquote>
+<p><em>在推理服务端，是如何做缓存的呢？尤其是针对不同用户的请求，彼此之间不会混淆搞串了吗？假设用户A命中了用户B的cache，那不就涉及到了信息泄露等问题？用户量如此之大，推理服务端又是如何存下所有用户的缓存呢？等等。即，KV Cache/Prompt Cache 在真实的工程视角下，涉及数据安全、容量、调度、计费等一整套工程权衡。</em></p>
+</blockquote>
+<h3 id="41-安全屏障">4.1 安全屏障<a hidden class="anchor" aria-hidden="true" href="#41-安全屏障">#</a></h3>
+<p><strong>1、内容寻址（Content-Addressing）的安全性</strong></p>
+<p>在服务端，系统通过对前缀 Token 序列进行哈希计算来生成唯一键（Cache Key）：</p>
+<p>$$
+\text{Cache Key} = \text{Hash}(\text{prefix_tokens})
+$$</p>
+<p>从数学上看，用户 A 想要命中用户 B 的缓存，其前缀必须与 B <strong>逐字完全等价</strong>。既然内容完全一致，其对应的 KV 矩阵即为确定性计算结果，因此复用缓存并不存在“读取到他人私密数据”的直接数据泄露风险。</p>
+<p><strong>2、隐蔽的时序侧信道风险 (Timing Side-Channel)</strong></p>
+<p>尽管内容无法被直接窥探，但由于“命中缓存的首字时延远快于未命中”，攻击者可以通过高精度时间探测，推断出其他用户是否输入过相同的敏感内容：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">攻击者构造特定敏感前缀 ──&gt; 提交至通用大模型 API ──&gt; 测量 TTFT
+</span></span><span class="line"><span class="cl">  ├──&gt; TTFT极短（毫秒级）──&gt; 判定该敏感事件/商业机密 prompt 近期被他人频繁调用 ──&gt; 隐性情报泄露
+</span></span><span class="line"><span class="cl">  └──&gt; TTFT正常（数百毫秒）──&gt; 判定近期无人调用
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>3、工业级防御方案</strong></p>
+<p>为了彻底绝绝此类侧信道探测，主流云厂商采用了<strong>按组织/租户强隔离</strong>的命名空间机制：</p>
+<p>$$
+\text{Cache Key} = \text{Hash}( \text{org_id}+\text{prefix_tokens})
+$$</p>
+<p>通过引入 <code>Org_ID</code>，纵使不同组织的用户输入了完全相同的系统提示词或敏感文本，其哈希键也绝不交叠。虽然这牺牲了部分公共前缀的全局复用率，但保障了企业级数据的绝对安全。</p>
+<h3 id="42-容量决策">4.2 容量决策<a hidden class="anchor" aria-hidden="true" href="#42-容量决策">#</a></h3>
+<p><strong>1、分层缓存架构</strong></p>
+<p>大模型（如 70B 及以上参数模型）的 KV Cache 体积巨大。在有限的硬件预算下，无节制地留存所有前缀是不可能的。工业界普遍采用<strong>分层缓存架构。</strong></p>
+<p><img alt="Prompt-Cache-分层缓存示例.png" loading="lazy" src="/posts/how-prompt-cache-works/images/image00.png"></p>
+<p>DeepSeek 引入<a href="https://api-docs.deepseek.com/news/news0802">磁盘级 Context Cache 方案</a>，不仅大幅降低存储成本，在性能方面，即使存在 SSD I/O 延迟，128K 请求的 TTFT 仍从 13s 降至 500ms，远快于重新 Prefill。</p>
+<p><strong>2、驱逐策略与动态淘汰</strong></p>
+<p>当各级存储空间触及水位线时，系统启动自动淘汰：</p>
+<ul>
+<li><strong>LRU（最近最少使用）</strong>：优先剔除最久未被命中的前缀。</li>
+<li><strong>TTL（生存时间生存期）机制</strong>：为缓存强制设定过期窗口（例如 Anthropic 默认的 5 分钟）。到期即焚，在释放空间的同时，也大幅收窄了侧信道攻击的暴露窗口。</li>
+</ul>
+<h3 id="43-调度优化">4.3 调度优化<a hidden class="anchor" aria-hidden="true" href="#43-调度优化">#</a></h3>
+<p>为了让海量请求在同一个 GPU 节点上高效并行，现代推理引擎（如 vLLM）在底层实现了虚拟内存管理。</p>
+<ul>
+<li><strong>PagedAttention 消除碎片</strong>：传统显存分配会为请求预留连续的、最大可能长度的空间，造成高达 60%-80% 的内存碎片。PagedAttention 将 KV Cache 切碎为固定大小的“物理块（Blocks）”，允许非连续存放，通过块表映射逻辑顺序，实现物理块的“写时复制（Copy-on-Write）”，这也是 Prefix Cache 实现多请求安全共享同一段内存的底层基石。</li>
+<li><strong>连续批处理（Continuous Batching）</strong>：在解码阶段，将数十个不同用户的请求动态打包进同一个计算 Batch。批处理打包的是计算指令，而各请求的 KV Cache 在内存物理块上依然强隔离。</li>
+<li><strong>Prefill/Decode 分离</strong>：两阶段资源特征冲突（compute-bound vs. memory-bound），大厂常用不同 GPU 池分别处理，各自优化，互不干扰彼此的延迟。</li>
+<li><strong>Chunked Prefill</strong>：超长 prompt 的 prefill 切块，和别人的 decode 穿插执行，避免一个长请求把其他用户的吐字卡住。</li>
+</ul>
+<h2 id="5-再看大模型-api-计费结构">5. 再看大模型 API 计费结构<a hidden class="anchor" aria-hidden="true" href="#5-再看大模型-api-计费结构">#</a></h2>
+<p>看懂了服务端的 KV Cache 分层与调度，便能完全看透各大主流大模型 API 账单的定价逻辑：</p>
+<ol>
+<li><strong>Cache Write</strong>：按标准输入计费，或因需要执行额外的存储持久化操作，部分平台会收取微小的存储溢价。</li>
+<li><strong>Cache Read / Cache Hit</strong>：由于免去了昂贵的 Prefill 阶段硬件算力，平台得以让利开发者。</li>
+<li><strong>Output Token</strong>：维持全价。因为不管前缀如何复用，自回归解码阶段必须踏踏实实地逐字计算、搬运模型权重，没有任何捷径可走。</li>
+</ol>
+<p>以下是 DeepSeek API 定价，数据源自 <a href="https://api-docs.deepseek.com/quick_start/pricing">https://api-docs.deepseek.com/quick_start/pricing</a></p>
+<p><img alt="image.png" loading="lazy" src="/posts/how-prompt-cache-works/images/image01.png"></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://kkbill.github.io/tags/llm/">LLM</a></li>
+      <li><a href="https://kkbill.github.io/tags/kv-cache/">KV Cache</a></li>
+      <li><a href="https://kkbill.github.io/tags/prompt-cache/">Prompt Cache</a></li>
+      <li><a href="https://kkbill.github.io/tags/agent/">Agent</a></li>
+      <li><a href="https://kkbill.github.io/tags/inference/">Inference</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="https://kkbill.github.io/posts/dive-into-kv-cache-in-llm/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Dive into KV Cache in LLM</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://kkbill.github.io/">kkBill&#39;s Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

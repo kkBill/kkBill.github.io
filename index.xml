@@ -6,7 +6,7 @@
     <description>Recent content on kkBill&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 27 Jun 2026 17:47:41 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 27 Jun 2026 17:52:52 +0800</lastBuildDate>
     <atom:link href="https://kkbill.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>About</title>
@@ -49,6 +49,49 @@
 }
 &lt;/style&gt;
 &lt;p&gt;I’m an &lt;span class=&#34;blue&#34;&gt;&lt;strong&gt;AI Agent engineer&lt;/strong&gt;&lt;/span&gt; and &lt;span class=&#34;blue&#34;&gt;&lt;strong&gt;system builder&lt;/strong&gt;&lt;/span&gt; focused on making large language models more reliable, grounded, and capable of autonomous reasoning.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>How Prompt Cache Works</title>
+      <link>https://kkbill.github.io/posts/how-prompt-cache-works/</link>
+      <pubDate>Sat, 27 Jun 2026 17:52:52 +0800</pubDate>
+      <guid>https://kkbill.github.io/posts/how-prompt-cache-works/</guid>
+      <description>&lt;p&gt;在日常的 Agent 开发中，开发者很难直接接触到服务端的 KV Cache。然而，无论是编写 Prompt、控制对话历史的长度，还是设计 Agent 的长程反思循环，其本质都在操纵 KV Cache 的计算与复用。本文旨在系统化拆解 KV Cache 与 Prompt Cache 的工作机制，分析其在多轮对话与 Agent 架构中的应用设计原则，并深入探讨在百万级用户规模下，分布式推理系统在安全性、多级存储管理、以及调度计费上面临的工程权衡。&lt;/p&gt;
+&lt;h2 id=&#34;1-核心概念prompt-cache-与-kv-cache&#34;&gt;1. 核心概念：Prompt Cache 与 KV Cache&lt;/h2&gt;
+&lt;h3 id=&#34;11-prompt-cache-与-kv-cache-的区别&#34;&gt;1.1 Prompt Cache 与 KV Cache 的区别&lt;/h3&gt;
+&lt;p&gt;要理解大模型推理的成本与时延，首先必须厘清两层性质完全不同的“缓存”概念。它们处于不同的生命周期，服务于不同的系统目的：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;&lt;strong&gt;维度&lt;/strong&gt;&lt;/th&gt;
+          &lt;th&gt;&lt;strong&gt;运行时 KV Cache&lt;/strong&gt;&lt;/th&gt;
+          &lt;th&gt;&lt;strong&gt;前缀复用缓存 (Prompt Cache / Prefix Cache)&lt;/strong&gt;&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;主体对象&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;某个正在进行的单次生成请求，独占该内存块&lt;/td&gt;
+          &lt;td&gt;已结束请求留下的、可供后续跨请求复用的前缀 KV 块&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;存活周期&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;即时焚毁&lt;/strong&gt;：随请求开始而创建，随生成结束（吐出 EOS）而彻底释放&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;持久留存&lt;/strong&gt;：请求结束后不丢弃，在内存/硬盘中留存一段时间（TTL）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;系统目的&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;维持 Self-Attention 机制的多轮解码，让当前的 Token 生成得以持续&lt;/td&gt;
+          &lt;td&gt;跳过后续相同前缀请求的 &lt;strong&gt;Prefill&lt;/strong&gt; 阶段，直接加载计算结果&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;核心效益&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;将自注意力计算复杂度从 O(N^2) 降低到 O(1)&lt;/td&gt;
+          &lt;td&gt;极端优化首字延迟（TTFT）与算力成本&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;12-prompt-cache-缓存了什么&#34;&gt;1.2 Prompt Cache 缓存了什么&lt;/h3&gt;
+&lt;p&gt;在 Prefill 阶段，推理引擎将 Prompt 中的每个 Token 转换为 K, V 向量填入缓存。Prompt Cache 做的事情，是在当前请求结束后，&lt;strong&gt;将这段已经算好的 KV Cache 留在服务端&lt;/strong&gt;。下次请求若 Prompt 前缀相同，则直接加载这块 KV，跳过对这段前缀的 prefill。&lt;/p&gt;</description>
     </item>
     <item>
       <title>Dive into KV Cache in LLM</title>
