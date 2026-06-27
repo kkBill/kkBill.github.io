@@ -131,7 +131,21 @@ Human-in-the-Loop hooks. // 这部分的设计还是可以看 Claude Code 的权
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-08-governance/">
+</script><script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-08-governance/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
   <meta property="og:title" content="Harness Engineering 08. Governance and Security">
   <meta property="og:description" content="这一层讨论如何约束 Agent 行为、确保安全性并建立问责机制。LLM Agent 如今已能执行 shell 命令、提交代码以及调用第三方 API。对于生产环境而言，一个核心问题是：Agent 应在什么约束条件下行动，当这些约束失效时由谁承担责任。治理拥有独立的工具生态系统，包括权限引擎、策略语言、审计流水线和网关控制。

@@ -110,7 +110,21 @@ messages...
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://kkbill.github.io/posts/dive-into-tool-use-in-llm/">
+</script><script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta property="og:url" content="https://kkbill.github.io/posts/dive-into-tool-use-in-llm/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
   <meta property="og:title" content="Dive into Tool Use in LLM">
   <meta property="og:description" content="1. 引言：工具调用示例 工具调用涉及与模型的多次交互，简单来看，工具调用流程包含五个步骤：

@@ -91,7 +91,21 @@
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-06-observability/">
+</script><script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-06-observability/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
   <meta property="og:title" content="Harness Engineering 06. Observability">
   <meta property="og:description" content="这一层关注的是在生产环境中如何监控、调试并确保 Agent 行为的可靠性。与以往框架将可观测性视为生命周期钩子（Lifecycle Hooks）的副产物不同，本文将可观测性与运维提升为一等公民，因为它已经催生了专门的平台、规范和工程实践生态系统。

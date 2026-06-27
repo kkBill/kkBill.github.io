@@ -105,7 +105,21 @@ A2A 针对的则是另一个问题。它不是向单个 Agent 暴露工具，而
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-03-tool/">
+</script><script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-03-tool/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
   <meta property="og:title" content="Harness Engineering 03. Tool">
   <meta property="og:description" content="工具接口与协议层定义了 Agent 如何发现能力、如何表示可调用的功能接口，以及如何执行动作。在实践中，一方面通过引入更多工具来扩大能力覆盖范围，另一方面通过保持尽量小规模的动作空间和提示词大小来维护决策质量。Anthropic 和 OpenAI 最新工程实践[1][2]指出，过多的工具会降低可靠性、增加 token 开销，并放大规划错误。

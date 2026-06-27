@@ -93,7 +93,21 @@ Prompt Engineering 优化的是面向单次模型调用的静态文本输入，C
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-04-context/">
+</script><script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-04-context/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
   <meta property="og:title" content="Harness Engineering 04. Context and Memory management">
   <meta property="og:description" content="这一层控制模型在执行的每一步看到什么信息，以及知识如何在多轮对话和会话之间持久化。核心工程问题可以简单表述为：在每一步给模型提供恰好正确的信息，不多不少。上下文太少，Agent 缺乏正确推理所需的状态；太多，则会导致性能下降。

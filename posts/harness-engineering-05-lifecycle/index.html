@@ -131,7 +131,21 @@
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-05-lifecycle/">
+</script><script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta property="og:url" content="https://kkbill.github.io/posts/harness-engineering-05-lifecycle/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
   <meta property="og:title" content="Harness Engineering 05. Lifecycle">
   <meta property="og:description" content="生命周期与编排关注 Agent 系统如何在多次模型调用、工具调用、失败、修订和交接中推进任务。这一层将两个关注点结合起来：Agent 的执行流(execution flow)，以及该执行流所读写的操作状态(operational state)。在长程任务中，可靠性不仅取决于模型能否生成一个好的下一步动作，还取决于 harness 能否记住已经发生了什么、决定下一步该做什么、如何从错误中恢复、协调子任务，以及在任务完成时停止。

@@ -72,7 +72,21 @@ I’m an AI Agent engineer and system builder focused on making large language m
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://kkbill.github.io/about/">
+</script><script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta property="og:url" content="https://kkbill.github.io/about/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
   <meta property="og:title" content="About">
   <meta property="og:description" content="I’m an AI Agent engineer and system builder focused on making large language models more reliable, grounded, and capable of autonomous reasoning.">

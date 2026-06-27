@@ -83,7 +83,21 @@ LLM Prompting">
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://kkbill.github.io/posts/memory-in-the-llm-era/">
+</script><script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta property="og:url" content="https://kkbill.github.io/posts/memory-in-the-llm-era/">
   <meta property="og:site_name" content="kkBill&#39;s Blog">
   <meta property="og:title" content="Memory in the LLM Era">
   <meta property="og:description" content="论文: Memory in the LLM Era: Modular Architectures and Strategies in a Unified Framework
