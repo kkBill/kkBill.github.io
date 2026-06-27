@@ -149,7 +149,23 @@
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">Deep Dive into Tool Use in LLM
+    <h2 class="entry-hint-parent">Dive into KV Cache in LLM
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>1. 自回归生成 LLM 本质上就是一个 next-token predictor：给定一段 prompt，预测下一个 token。所有长篇回答，都是 token by token 生成的。初学者需要注意，token 与词/字符之间并不完全等价，模型的处理单位是 token，即模型的输入输出都是 token，而不是一个词或一个字符。（注：若仅关注原理部分，不关注 tokenization 的内部实现机制，粗糙地将 token ≈ 词，关系也不大）
+模型在预测下一个 token 时，不是直接吐出一个确定的词，而是输出全词表的概率分布。比如，用户输入&#34;今天天气真&#34;，模型经过一系列计算得到全词表的概率分布，再经过采样得到一个 token：
+1 2 3 4 5 6 7 8 输入：&#34;今天天气真&#34; &#34;好&#34; → 0.62 &#34;不错&#34; → 0.15 &#34;热&#34; → 0.08 ...(其余 token 瓜分剩余概率) ==》 next token: &#34;好&#34; 模型一次只产出一个 token，把第 i 步的输出作为第 i&#43;1 步的输入，用伪代码表示，大致如下：
+1 2 3 4 5 while not finished: logits = model.forward(tokens) # ① 前向: 算出词表上 N 个分数 probs = softmax(logits) # ② 变概率 next_token = sample(probs) # ③ 采样选一个 tokens.append(next_token) # ④ 拼上去 示例：
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-06-27 17:47:41 +0800 CST'>June 27, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
+  <a class="entry-link" aria-label="post link to Dive into KV Cache in LLM" href="https://kkbill.github.io/posts/dive-into-kv-cache-in-llm/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Dive into Tool Use in LLM
     </h2>
   </header>
   <div class="entry-content">
@@ -164,7 +180,7 @@
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2026-06-20 10:00:00 +0800 CST'>June 20, 2026</span>&nbsp;·&nbsp;<span>kkBill</span></footer>
-  <a class="entry-link" aria-label="post link to Deep Dive into Tool Use in LLM" href="https://kkbill.github.io/posts/deep-dive-into-tool-use-in-llm/"></a>
+  <a class="entry-link" aria-label="post link to Dive into Tool Use in LLM" href="https://kkbill.github.io/posts/dive-into-tool-use-in-llm/"></a>
 </article>
 
 <article class="post-entry tag-entry"> 
